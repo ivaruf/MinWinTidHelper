@@ -29,6 +29,9 @@ async function fillOut() {
         await new Promise(r => setTimeout(r, 1000));
 
         // Oh look, the id has changed to reg-input-86400, how quaint.
+        // ... actually it is 86400 / 3600 = 24. In other words midnight
+        // You can see what time is in the input based on the id that change ...
+        // Amazing!
         document.getElementById("reg-input-86400").value = "16:35";
         var uttid = $("#reg-input-86400");
 
