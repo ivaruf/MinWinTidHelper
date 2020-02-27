@@ -5,10 +5,9 @@
 // this code.
 
 async function fillOut() {
-    // The id of a filled filed is 32400, naturally.
-    var filledTime = $("#reg-input-32400");
+    var dayIsEmpty = $("#registrations")[0].innerHTML.indexOf("Ingen registreringer denne dagen") > 0;
 
-    if(filledTime !== undefined) {
+    if(!dayIsEmpty) {
         alert("Kan bare fylle ut for en tom dag");
     } else {
         document.getElementById("addInOut").click();
