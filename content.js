@@ -1,30 +1,47 @@
 // content.js
 
+// Warning! This file contains silly and or sarcastic comments.
+// If you do not like this kind of stuff, feel free to not read
+// this code.
+
 async function fillOut() {
-    document.getElementById("addInOut").click();
+    // The id of a filled filed is 32400, naturally.
+    var filledTime = $("#reg-input-32400");
 
-    await new Promise(r => setTimeout(r, 1000));
+    if(filledTime !== undefined) {
+        alert("Kan bare fylle ut for en tom dag");
+    } else {
+        document.getElementById("addInOut").click();
 
-    document.getElementById("reg-input-0").value = "09:00";
-    var inntid = $("#reg-input-0")
+        // We wait a bit to load the inn/out page
+        await new Promise(r => setTimeout(r, 1000));
 
-    inntid.keydown();
-    inntid.keypress();
-    inntid.keyup();
-    inntid.blur();
+        //Why yes, all the input id-s are reg-input-0, of course.
+        document.getElementById("reg-input-0").value = "09:00";
+        var inntid = $("#reg-input-0")
 
+        // Simulate some user activity to trigger the change
+        inntid.keydown();
+        inntid.keypress();
+        inntid.keyup();
+        inntid.blur();
 
-    await new Promise(r => setTimeout(r, 1000));
+        // wait some more
+        await new Promise(r => setTimeout(r, 1000));
 
-    document.getElementById("reg-input-86400").value = "16:35";
-    var uttid = $("#reg-input-86400");
+        // Oh look, the id has changed to reg-input-86400, how quaint.
+        document.getElementById("reg-input-86400").value = "16:35";
+        var uttid = $("#reg-input-86400");
 
-    uttid.keydown();
-    uttid.keypress();
-    uttid.keyup();
-    uttid.blur();
+        // Simulate some more user motion
+        uttid.keydown();
+        uttid.keypress();
+        uttid.keyup();
+        uttid.blur();
 
-    document.getElementById("calculate-button").click();
+        // Good to go, hit it!
+        document.getElementById("calculate-button").click();
+    }
 }
 
 var script = document.createElement('script');
