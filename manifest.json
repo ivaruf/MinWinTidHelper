@@ -9,5 +9,6 @@
       ],
       "js": ["jquery.js", "content.js"]
     }
-  ]
+  ],
+  "icons": { "48": "owl-head.png" }
 }
