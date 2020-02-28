@@ -4,11 +4,15 @@
 // If you do not like this kind of stuff, feel free to not read
 // this code.
 
-async function fillOut() {
-    var dayIsEmpty = $("#registrations")[0].innerHTML.indexOf("Ingen registreringer denne dagen") > 0;
 
+async function fillOut(skipAlert = false) {
+    var dayIsEmpty = $("#registrations")[0].innerHTML.indexOf("Ingen registreringer denne dagen") > 0;
+    // TODO check how many "day-checkin" we have ... and skip if you cannot find it.
     if(!dayIsEmpty) {
-        alert("Kan bare fylle ut for en tom dag");
+        console.log("Skipping filled day");
+        if(!skipAlert) {
+            alert("Kan bare fylle ut for en tom dag");
+        }
     } else {
         var fillButton = $(".auto-filler");
         var startTime = fillButton.attr("start-time");
@@ -50,10 +54,40 @@ async function fillOut() {
     }
 }
 
+async function fillMonth() {
+    $(".loader-overlay-main").removeClass("ng-hide");
+    for (let day = 1; day < 32; day++) {
+        var node = $("[data-cy=maintenance-calendar-day-"+day+"]")
+        if (node !== undefined) {
+            node.click();
+            await new Promise(r => setTimeout(r, 5000));
+            const dayIsEmpty = $("#registrations")[0].innerHTML.indexOf("Ingen registreringer denne dagen") > 0;
+            const dayIsWorkDay = $("#mustering-length")[0].value === "07:35";
+            if (dayIsWorkDay && dayIsEmpty) {
+                console.log("Filling out!");
+                await fillOut(true);
+                await new Promise(r => setTimeout(r, 15000));
+            } else {
+                console.log("No for day " + day);
+            }
+        } else {
+            console.log("Day " + day + " not found.");
+        }
+    }
+    $(".loader-overlay-main").addClass("ng-hide");
+}
+
+
 var script = document.createElement('script');
 script.textContent = fillOut.toString();
 (document.head||document.documentElement).appendChild(script);
 script.parentNode.removeChild(script);
+
+var script2 = document.createElement('script');
+script2.textContent = fillMonth.toString();
+(document.head||document.documentElement).appendChild(script2);
+script2.parentNode.removeChild(script2);
+
 
 chrome.storage.sync.get(
     {
@@ -68,6 +102,7 @@ chrome.storage.sync.get(
 
 jQuery(document).ready(function() {
     jQuery("#editing-day ul").append('<li> <button onClick="fillOut()" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" type="button"> Fyll ut dag </button></li>');
+    jQuery("#calendar-nav").prepend('<button onClick="fillMonth()" class="warning" type="button"> Auto-fyll mnd </button>');
     document.addEventListener('fillOutEvent', function() {
         fillOut();
     });
