@@ -66,8 +66,12 @@ chrome.storage.sync.get(
     }
 );
 
-jQuery(document).ready(function() {
-    jQuery("#editing-day ul").append('<li> <button onClick="fillOut()" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" type="button"> Fyll ut dag </button></li>');
+console.log("Trying to add button");
+$(document).ready(function() {
+    console.log($("#editing-day ul"));
+    $("#editing-day ul").append('<li> <button onClick="fillOut()" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" type="button"> Fyll ut dag </button></li>');
+    console.log("In ready functino and adding button");
+
     document.addEventListener('fillOutEvent', function() {
         fillOut();
     });
