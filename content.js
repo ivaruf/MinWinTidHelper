@@ -55,6 +55,11 @@ async function fillOut(skipAlert = false) {
 }
 
 async function fillMonth() {
+    const playMusic = $(".fyll-mnd").attr("music") === "true";
+    if(playMusic) {
+        $("#audio-player")[0].play();
+    }
+
     $(".loader-overlay-main").removeClass("ng-hide");
     for (let day = 1; day < 32; day++) {
         var node = $("[data-cy=maintenance-calendar-day-"+day+"]")
@@ -75,6 +80,9 @@ async function fillMonth() {
         }
     }
     $(".loader-overlay-main").addClass("ng-hide");
+    if(playMusic) {
+        $("#audio-player")[0].pause();
+    }
 }
 
 
@@ -88,21 +96,32 @@ script2.textContent = fillMonth.toString();
 (document.head||document.documentElement).appendChild(script2);
 script2.parentNode.removeChild(script2);
 
-
 chrome.storage.sync.get(
     {
         startTime: '09:00',
-        endTime: '16:35'
+        endTime: '16:35',
+        music: false
     },
     function(settings) {
         startTime = settings.startTime;
-        endTime = settings.endTime
+        endTime = settings.endTime;
+        music = settings.music;
     }
 );
 
 jQuery(document).ready(function() {
+    if (music === true) {
+        var sound      = document.createElement('audio');
+        sound.id       = 'audio-player';
+        sound.controls = 'controls';
+        sound.loop     = 'true';
+        sound.src      = chrome.runtime.getURL("music/elevator.mp3");
+        sound.type     = 'audio/mpeg';
+        (document.head||document.documentElement).appendChild(sound);
+    }
+
     jQuery("#editing-day ul").append('<li> <button onClick="fillOut()" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" type="button"> Fyll ut dag </button></li>');
-    jQuery("#calendar-nav").prepend('<button onClick="fillMonth()" class="warning" type="button"> Auto-fyll mnd </button>');
+    jQuery("#calendar-nav").prepend('<button onClick="fillMonth()" music="'+music+'" class="warning fyll-mnd" type="button"> Auto-fyll mnd </button>');
     document.addEventListener('fillOutEvent', function() {
         fillOut();
     });
