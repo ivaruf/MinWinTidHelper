@@ -68,13 +68,21 @@ async function fillMonth() {
 
     $(".loader-overlay-main").removeClass("ng-hide");
     for (let day = 1; day < 32; day++) {
-        var node = $("[data-cy=maintenance-calendar-day-"+day+"]")
+        var node = $("[data-cy=maintenance-calendar-day-"+day+"]").not(".fc-other-month");
+
+        if(node.length === 0) {
+            continue
+        }
 
         // Do not even click if it already has a correction. (pruple dot)
         if($("[data-cy=maintenance-calendar-day-"+day+"] .day-correction").length > 0) {
             continue;
         }
-
+        console.log(node)
+        if(node.length === 1 && node[0].cellIndex === 6 || node[0].cellIndex === 7) {
+            console.log("Weekend day... skipping");
+            continue;
+        }
         if (node !== undefined) {
             node.click();
             while(true) {
