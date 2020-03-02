@@ -63,6 +63,12 @@ async function fillMonth() {
     $(".loader-overlay-main").removeClass("ng-hide");
     for (let day = 1; day < 32; day++) {
         var node = $("[data-cy=maintenance-calendar-day-"+day+"]")
+
+        // Do not even click if it already has a correction. (pruple dot)
+        if($("[data-cy=maintenance-calendar-day-"+day+"] .day-correction").length > 0) {
+            continue;
+        }
+
         if (node !== undefined) {
             node.click();
             await new Promise(r => setTimeout(r, 5000));
