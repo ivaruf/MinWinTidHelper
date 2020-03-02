@@ -11,7 +11,7 @@ async function fillOut(skipAlert = false) {
     if(!dayIsEmpty) {
         console.log("Skipping filled day");
         if(!skipAlert) {
-            alert("Kan bare fylle ut for en tom dag");
+            alert("Kan bare auto-fylle ut for en tom dag.");
         }
     } else {
         var fillButton = $(".auto-filler");
@@ -22,6 +22,11 @@ async function fillOut(skipAlert = false) {
 
         // We wait a bit to load the inn/out page
         await new Promise(r => setTimeout(r, 1000));
+
+        if($("#registrations .day-time-in").length === 2) {
+            alert("Kan ikke auto-fylle for den dag som ikke er over.")
+            return false;
+        }
 
         //Why yes, all the input id-s are reg-input-0, of course.
         document.getElementById("reg-input-0").value = startTime;
@@ -76,7 +81,10 @@ async function fillMonth() {
             const dayIsWorkDay = $("#mustering-length")[0].value === "07:35";
             if (dayIsWorkDay && dayIsEmpty) {
                 console.log("Filling out!");
-                await fillOut(true);
+                const didFill = await fillOut(true);
+                if(!didFill) {
+                    break;
+                }
                 await new Promise(r => setTimeout(r, 15000));
             } else {
                 console.log("No for day " + day);
