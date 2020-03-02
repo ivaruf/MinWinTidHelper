@@ -56,6 +56,7 @@ async function fillOut(skipAlert = false) {
 
         // Good to go, hit it!
         document.getElementById("calculate-button").click();
+        return true;
     }
 }
 
@@ -76,16 +77,29 @@ async function fillMonth() {
 
         if (node !== undefined) {
             node.click();
-            await new Promise(r => setTimeout(r, 5000));
+            while(true) {
+                await new Promise(r => setTimeout(r, 1000));
+                console.log("Venter på lasting av side ...")
+                if ($("#loading-image:hidden").length > 0) {
+                    break;
+                }
+            }
             const dayIsEmpty = $("#registrations")[0].innerHTML.indexOf("Ingen registreringer denne dagen") > 0;
             const dayIsWorkDay = $("#mustering-length")[0].value === "07:35";
             if (dayIsWorkDay && dayIsEmpty) {
                 console.log("Filling out!");
-                const didFill = await fillOut(true);
+                var didFill = await fillOut(true);
                 if(!didFill) {
                     break;
                 }
-                await new Promise(r => setTimeout(r, 15000));
+                while(true) {
+                    await new Promise(r => setTimeout(r, 1000));
+                    console.log("Beregner fremdeles ...")
+                    if ($("#loading-image:hidden").length > 0) {
+                        console.log("Ferdig med beregning for dag " + day + "!");
+                        break;
+                    }
+                }
             } else {
                 console.log("No for day " + day);
             }
