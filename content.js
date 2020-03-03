@@ -14,11 +14,18 @@ async function waitAwhileAndListen(message = "laster") {
     }
 }
 
+// Simulate some user activity to trigger the change
+function jiggle(element) {
+    element.keydown();
+    element.keypress();
+    element.keyup();
+    element.blur();
+}
+
 async function fillOut(skipAlert = false) {
     var dayIsEmpty = $("#registrations")[0].innerHTML.indexOf("Ingen registreringer denne dagen") > 0;
     // TODO check how many "day-checkin" we have ... and skip if you cannot find it.
     if(!dayIsEmpty) {
-        console.log("Skipping filled day");
         if(!skipAlert) {
             alert("Kan bare auto-fylle ut for en tom dag.");
         }
@@ -41,11 +48,7 @@ async function fillOut(skipAlert = false) {
         document.getElementById("reg-input-0").value = startTime;
         var inntid = $("#reg-input-0")
 
-        // Simulate some user activity to trigger the change
-        inntid.keydown();
-        inntid.keypress();
-        inntid.keyup();
-        inntid.blur();
+        jiggle(inntid);
 
         // wait some more
         await new Promise(r => setTimeout(r, 1000));
@@ -58,10 +61,7 @@ async function fillOut(skipAlert = false) {
         var uttid = $("#reg-input-86400");
 
         // Simulate some more user motion
-        uttid.keydown();
-        uttid.keypress();
-        uttid.keyup();
-        uttid.blur();
+        jiggle(uttid)
 
         // Good to go, hit it!
         document.getElementById("calculate-button").click();
@@ -115,12 +115,6 @@ async function fillMonth() {
     }
 }
 
-
-var script = document.createElement('script');
-script.textContent = fillOut.toString() + fillMonth.toString() + waitAwhileAndListen.toString() ;
-(document.head||document.documentElement).appendChild(script);
-script.parentNode.removeChild(script);
-
 chrome.storage.sync.get(
     {
         startTime: '09:00',
@@ -134,7 +128,12 @@ chrome.storage.sync.get(
     }
 );
 
-jQuery(document).ready(function() {
+var script = document.createElement('script');
+script.textContent = fillOut.toString() + fillMonth.toString() + waitAwhileAndListen.toString() + jiggle.toString();
+(document.head || document.documentElement).appendChild(script);
+script.parentNode.removeChild(script);
+
+$(document).ready(function() {
     if (music === true) {
         var sound      = document.createElement('audio');
         sound.id       = 'audio-player';
@@ -145,9 +144,6 @@ jQuery(document).ready(function() {
         (document.head||document.documentElement).appendChild(sound);
     }
 
-    jQuery("#editing-day ul").append('<li> <button onClick="fillOut()" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" type="button"> Fyll ut dag </button></li>');
-    jQuery("#calendar-nav").prepend('<button onClick="fillMonth()" music="'+music+'" class="warning fyll-mnd" type="button"> Auto-fyll mnd </button>');
-    document.addEventListener('fillOutEvent', function() {
-        fillOut();
-    });
+    $("#editing-day ul").append('<li> <button onClick="fillOut()" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" type="button"> Fyll ut dag </button></li>');
+    $("#calendar-nav").prepend('<button onClick="fillMonth()" music="'+music+'" class="warning fyll-mnd" type="button"> Auto-fyll mnd </button>');
 });
