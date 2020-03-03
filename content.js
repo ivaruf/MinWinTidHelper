@@ -4,6 +4,15 @@
 // If you do not like this kind of stuff, feel free to not read
 // this code.
 
+async function waitAwhileAndListen(message = "laster") {
+    while(true) {
+        await new Promise(r => setTimeout(r, 1000));
+        console.log(message)
+        if ($("#loading-image:hidden").length > 0) {
+            break;
+        }
+    }
+}
 
 async function fillOut(skipAlert = false) {
     var dayIsEmpty = $("#registrations")[0].innerHTML.indexOf("Ingen registreringer denne dagen") > 0;
@@ -21,7 +30,7 @@ async function fillOut(skipAlert = false) {
         document.getElementById("addInOut").click();
 
         // We wait a bit to load the inn/out page
-        await new Promise(r => setTimeout(r, 1000));
+        await waitAwhileAndListen()
 
         if($("#registrations .day-time-in").length === 2) {
             alert("Kan ikke auto-fylle for den dag som ikke er over.")
@@ -70,7 +79,8 @@ async function fillMonth() {
     for (let day = 1; day < 32; day++) {
         var node = $("[data-cy=maintenance-calendar-day-"+day+"]").not(".fc-other-month");
 
-        if(node.length === 0) {
+        // If we can't find the node, then we skip that day.
+        if(node.length === 0 || node === undefined) {
             continue
         }
 
@@ -83,36 +93,20 @@ async function fillMonth() {
             console.log("Weekend day... skipping");
             continue;
         }
-        if (node !== undefined) {
-            node.click();
-            while(true) {
-                await new Promise(r => setTimeout(r, 1000));
-                console.log("Venter på lasting av side ...")
-                if ($("#loading-image:hidden").length > 0) {
-                    break;
-                }
+        node.click();
+        await waitAwhileAndListen("Venter på lasting av side ...");
+
+        const dayIsEmpty = $("#registrations")[0].innerHTML.indexOf("Ingen registreringer denne dagen") > 0;
+        const dayIsWorkDay = $("#mustering-length")[0].value === "07:35";
+        if (dayIsWorkDay && dayIsEmpty) {
+            console.log("Filling out!");
+            var didFill = await fillOut(true);
+            if(!didFill) {
+                break;
             }
-            const dayIsEmpty = $("#registrations")[0].innerHTML.indexOf("Ingen registreringer denne dagen") > 0;
-            const dayIsWorkDay = $("#mustering-length")[0].value === "07:35";
-            if (dayIsWorkDay && dayIsEmpty) {
-                console.log("Filling out!");
-                var didFill = await fillOut(true);
-                if(!didFill) {
-                    break;
-                }
-                while(true) {
-                    await new Promise(r => setTimeout(r, 1000));
-                    console.log("Beregner fremdeles ...")
-                    if ($("#loading-image:hidden").length > 0) {
-                        console.log("Ferdig med beregning for dag " + day + "!");
-                        break;
-                    }
-                }
-            } else {
-                console.log("No for day " + day);
-            }
+            await waitAwhileAndListen("Beregner fremdeles ...");
         } else {
-            console.log("Day " + day + " not found.");
+            console.log("Ikke arbeidsdag, eller finnes registrering for: " + day);
         }
     }
     $(".loader-overlay-main").addClass("ng-hide");
@@ -123,14 +117,9 @@ async function fillMonth() {
 
 
 var script = document.createElement('script');
-script.textContent = fillOut.toString();
+script.textContent = fillOut.toString() + fillMonth.toString() + waitAwhileAndListen.toString() ;
 (document.head||document.documentElement).appendChild(script);
 script.parentNode.removeChild(script);
-
-var script2 = document.createElement('script');
-script2.textContent = fillMonth.toString();
-(document.head||document.documentElement).appendChild(script2);
-script2.parentNode.removeChild(script2);
 
 chrome.storage.sync.get(
     {
