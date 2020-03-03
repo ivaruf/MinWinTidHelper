@@ -144,6 +144,6 @@ $(document).ready(function() {
         (document.head||document.documentElement).appendChild(sound);
     }
 
-    $("#editing-day ul").append('<li> <button onClick="fillOut()" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" type="button"> Fyll ut dag </button></li>');
-    $("#calendar-nav").prepend('<button onClick="fillMonth()" music="'+music+'" class="warning fyll-mnd" type="button"> Auto-fyll mnd </button>');
+    $("#editing-day ul").append('<li> <button title="Fyll ut dag med din vanlige arbeidstid" onClick="fillOut()" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" type="button"> Fyll ut dag </button></li>');
+    $("#calendar-nav").prepend('<button title="Fyll ut alle dager uten registreringer med din vanlige abreidstid" onClick="fillMonth()" music="'+music+'" class="fyll-mnd" type="button"> Auto-fyll mnd </button>');
 });
