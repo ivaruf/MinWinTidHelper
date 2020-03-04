@@ -88,13 +88,16 @@ async function fillMonth() {
         if($("[data-cy=maintenance-calendar-day-"+day+"] .day-correction").length > 0) {
             continue;
         }
-        console.log(node)
         if(node.length === 1 && node[0].cellIndex === 6 || node[0].cellIndex === 7) {
             console.log("Weekend day... skipping");
             continue;
         }
         node.click();
         await waitAwhileAndListen("Venter på lasting av side ...");
+        if($(".ui-dialog:visible").length > 0) {
+             alert("Last inn siden på nytt for å auto-fylle mnd.");
+             break;
+        }
 
         const dayIsEmpty = $("#registrations")[0].innerHTML.indexOf("Ingen registreringer denne dagen") > 0;
         const dayIsWorkDay = $("#mustering-length")[0].value === "07:35";
@@ -110,7 +113,7 @@ async function fillMonth() {
         }
     }
     $(".loader-overlay-main").addClass("ng-hide");
-    if(playMusic) {
+    if (playMusic) {
         $("#audio-player")[0].pause();
     }
 }
