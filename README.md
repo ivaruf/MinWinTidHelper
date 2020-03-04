@@ -1,4 +1,4 @@
-# MinWinTidHelper
+# !["logo"](https://github.com/ivaruf/MinWinTidHelper/blob/master/owl-head.png?raw=true) MinWinTidHelper
 En chrome extension til å forenkle føring av timer i minWINTID. Denne er til deg som går inn hver dag og fyller ut de samme tallene. Her er det mange klikk å spare!
 Dager hvor du ikke jobber din normale arbeidstid må du fylle ut manuelt som tidligere.
 
@@ -13,14 +13,14 @@ Du kan auto-fylle så mange ganger du ønsker i løpet av en måned, da verdier 
 Normal arbeidsflyt vil være å fylle unntak i løpet av en måned, og så klikke en gang på "Auto-fyll" mnd når måned er over.
 
 ## Brukervalg
-Klikk på extension-icon i chrome og velg "options". Du kan nå sette en annen start og slutt tid som stemmer mer med hvordan du vanligvis jobber. Det kan være mer eller mindre en 07:35 timer. 
+Klikk på extension-icon i chrome og velg "options". Du kan nå sette en annen start og slutt tid som stemmer mer med hvordan du vanligvis jobber. Det kan være mer eller mindre enn 07:35 timer.
 
 Her kan du også velge om du vil spille Muzak (heis-musikk) mens måneds-fylling pågår =)
 
 ## Installasjon
 1. Klon eller last ned git repositroy
 2. Åpne chrome
-3. Gå til  [chrome:\\extensions](chrome:\\extensions)
+3. Gå til  ```chrome:\\extensions```
 4. Skru på "developer mode" toggle i øverste høyre hjørne
 5. Klikk "Load unpacked" knapp
 6. Velg mappen du lastet ned i steg 1
