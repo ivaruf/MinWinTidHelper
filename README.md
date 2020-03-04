@@ -1,19 +1,27 @@
 # MinWinTidHelper
-Chrome extension to automate drudgery
+En chrome extension til å forenkle føring av timer i minWINTID. Denne er til deg som går inn hver dag og fyller ut de samme tallene. Her er det mange klikk å spare!
+Dager hvor du ikke jobber din normale arbeidstid må du fylle ut manuelt som tidligere.
 
-## Installation
-* Clone or download the git repositroy
-* Open chrome
-* Go to ```chrome:\\extensions```
-* Enable developer mode (top right corner)
-* Click "Load unpacked" button
-* Select the directory downloaded in step 1
-* Done!
+## Bruk
+*To nye knapper kommer frem i Vedlikeholds vinduet:*
 
-## Usage
- * Go to MinWinTid as you usually would
- * Open "Vedlikehold"
- * A new button should appear - "Fyll inn dag" 
- 
- When clicked it will automatically fill inn 09:00 to 16:35 (regular day) - so you don't have to =)
- You can set other default-times in the option section for the extension.
+1: **Fyll ut dag** ved siden av "Beregn" knappen vil automatisk fylle inn 09:00 til 16:35 for denne dagen.
+
+2: **Auto-fyll mnd** ved siden over kalendervsningen: fyll ut 09:00 til 16:35 for alle dager som ikke har noen registreringer og som forventer 07:35 timers arbeidstid. Helger, helligdager og "halve" dager blir ikke fylt ut automatisk.
+Du kan auto-fylle så mange ganger du ønsker i løpet av en måned, da verdier aldri blir overskrevet, og den stopper når den kommer til dagen i dag (minWINTID tillater ikke å føre frem i tid).
+
+Normal arbeidsflyt vil være å fylle unntak i løpet av en måned, og så klikke en gang på "Auto-fyll" mnd når måned er over.
+
+## Brukervalg
+Klikk på extension-icon i chrome og velg "options". Du kan nå sette en annen start og slutt tid som stemmer mer med hvordan du vanligvis jobber. Det kan være mer eller mindre en 07:35 timer. 
+
+Her kan du også velge om du vil spille Muzak (heis-musikk) mens måneds-fylling pågår =)
+
+## Installasjon
+1. Klon eller last ned git repositroy
+2. Åpne chrome
+3. Gå til  [chrome:\\extensions](chrome:\\extensions)
+4. Skru på "developer mode" toggle i øverste høyre hjørne
+5. Klikk "Load unpacked" knapp
+6. Velg mappen du lastet ned i steg 1
+7. Ferdig!
