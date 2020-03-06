@@ -32,7 +32,8 @@ async function fillOut(skipAlert = false) {
     } else {
         var fillButton = $(".auto-filler");
         var startTime = fillButton.attr("start-time");
-        var endTime = fillButton.attr("end-time")
+        var endTime = fillButton.attr("end-time");
+        var manual = fillButton.attr("manual");
 
         document.getElementById("addInOut").click();
 
@@ -64,7 +65,12 @@ async function fillOut(skipAlert = false) {
         jiggle(uttid)
 
         // Good to go, hit it!
-        document.getElementById("calculate-button").click();
+        if(manual === "true") {
+            document.getElementById("lagreknapp").click();
+        }
+        else {
+            document.getElementById("calculate-button").click();
+        }
         return true;
     }
 }
@@ -122,12 +128,14 @@ chrome.storage.sync.get(
     {
         startTime: '09:00',
         endTime: '16:35',
-        music: false
+        music: false,
+        manual: false
     },
     function(settings) {
         startTime = settings.startTime;
         endTime = settings.endTime;
         music = settings.music;
+        manual = settings.manual
     }
 );
 
@@ -147,6 +155,6 @@ $(document).ready(function() {
         (document.head||document.documentElement).appendChild(sound);
     }
 
-    $("#editing-day ul").append('<li> <button title="Fyll ut dag med din vanlige arbeidstid" onClick="fillOut()" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" type="button"> Fyll ut dag </button></li>');
+    $("#editing-day ul").append('<li> <button title="Fyll ut dag med din vanlige arbeidstid" onClick="fillOut()" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" manual="'+manual+'" type="button"> Fyll ut dag </button></li>');
     $("#calendar-nav").prepend('<button title="Fyll ut alle dager uten registreringer med din vanlige abreidstid" onClick="fillMonth()" music="'+music+'" class="fyll-mnd" type="button"> Auto-fyll mnd </button>');
 });
