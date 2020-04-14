@@ -106,7 +106,9 @@ async function fillMonth() {
         }
 
         const dayIsEmpty = $("#registrations")[0].innerHTML.indexOf("Ingen registreringer denne dagen") > 0;
-        const dayIsWorkDay = $("#mustering-length")[0].value === "07:35";
+        const workDayLength = $("#mustering-length")[0].value;
+        const dayIsWorkDay = workDayLength === "07:35" || workDayLength === "06:00";
+
         if (dayIsWorkDay && dayIsEmpty) {
             console.log("Filling out!");
             var didFill = await fillOut(true);
