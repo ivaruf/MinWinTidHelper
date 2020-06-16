@@ -124,6 +124,34 @@ async function fillMonth() {
     }
 }
 
+async function killMonth() {
+    const playMusic = $(".fyll-mnd").attr("music") === "true";
+    if(playMusic) {
+        $("#audio-player")[0].play();
+    }
+
+    $(".loader-overlay-main").removeClass("ng-hide");
+    for (let day = 1; day < 32; day++) {
+        await waitAwhileAndListen("Venter på lasting av side ...");
+        var node = $("[data-cy=maintenance-calendar-day-"+day+"]").not(".fc-other-month");
+        node.click();
+
+        // If we can't find the node, then we skip that day.
+        if(node.length === 0 || node === undefined) {
+            continue
+        }
+        await waitAwhileAndListen("Venter på lasting av side ...");
+        $(".delete-button").click();
+        await waitAwhileAndListen("Venter på lasting av side ...");
+        document.getElementById("lagreknapp").click();
+        await waitAwhileAndListen("Venter på lasting av side ...");
+    }
+    $(".loader-overlay-main").addClass("ng-hide");
+    if (playMusic) {
+        $("#audio-player")[0].pause();
+    }
+}
+
 chrome.storage.sync.get(
     {
         startTime: '09:00',
@@ -140,7 +168,7 @@ chrome.storage.sync.get(
 );
 
 var script = document.createElement('script');
-script.textContent = fillOut.toString() + fillMonth.toString() + waitAwhileAndListen.toString() + jiggle.toString();
+script.textContent = fillOut.toString() + fillMonth.toString() + waitAwhileAndListen.toString() + jiggle.toString() + killMonth.toString();
 (document.head || document.documentElement).appendChild(script);
 script.parentNode.removeChild(script);
 
@@ -157,4 +185,5 @@ $(document).ready(function() {
 
     $("#editing-day ul").append('<li> <button title="Fyll ut dag med din vanlige arbeidstid" onClick="fillOut()" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" manual="'+manual+'" type="button"> Fyll ut dag </button></li>');
     $("#calendar-nav").prepend('<button title="Fyll ut alle dager uten registreringer med din vanlige abreidstid" onClick="fillMonth()" music="'+music+'" class="fyll-mnd" type="button"> Auto-fyll mnd </button>');
+    $("#calendar-nav").prepend('<button onClick="killMonth()" music="'+music+'" class="cancel" type="button">Remove all</button>');
 });
