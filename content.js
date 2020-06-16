@@ -185,5 +185,5 @@ $(document).ready(function() {
 
     $("#editing-day ul").append('<li> <button title="Fyll ut dag med din vanlige arbeidstid" onClick="fillOut()" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" manual="'+manual+'" type="button"> Fyll ut dag </button></li>');
     $("#calendar-nav").prepend('<button title="Fyll ut alle dager uten registreringer med din vanlige abreidstid" onClick="fillMonth()" music="'+music+'" class="fyll-mnd" type="button"> Auto-fyll mnd </button>');
-    $("#calendar-nav").prepend('<button onClick="killMonth()" music="'+music+'" class="cancel" type="button">Remove all</button>');
+    $("#calendar-nav").prepend('<button onClick="killMonth()" music="'+music+'" class="cancel" style="margin-right:5px" type="button">Remove all</button>');
 });
