@@ -21,10 +21,11 @@ dette sparer litt tid, men du må da selv huske å trykke beregn senere.
 Her kan du også velge om du vil spille Muzak (heis-musikk) mens måneds-fylling pågår =)
 
 ## Installasjon
-1. Klon eller last ned git repositroy
-2. Åpne chrome
-3. Gå til  ```chrome:\\extensions```
-4. Skru på "developer mode" toggle i øverste høyre hjørne
-5. Klikk "Load unpacked" knapp
-6. Velg mappen du lastet ned i steg 1
-7. Ferdig!
+1. Klon eller last ned git repositroy (bruk eventuelt direktelink: https://cutt.ly/minwintidhelper)
+2. Pakk ut (unzip) hvis du lastet ned direkte
+3. Åpne chrome
+4. Gå til  ```chrome:\\extensions```
+5. Skru på "developer mode" toggle i øverste høyre hjørne
+6. Klikk "Load unpacked" knapp
+7. Velg mappen du klonet / pakket ut
+8. Ferdig!
