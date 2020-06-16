@@ -15,8 +15,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://minwintid.oslo.kommune.no/Vedlikehold",
-        "https://minwintids.oslo.kommune.no/Vedlikehold"
+        "https://*.no/Vedlikehold"
       ],
       "js": ["jquery.js", "content.js"]
     }
