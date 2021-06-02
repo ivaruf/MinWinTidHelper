@@ -35,6 +35,29 @@ async function fillOut(skipAlert = false) {
         var endTime = fillButton.attr("end-time");
         var manual = fillButton.attr("manual");
 
+        if(true) {
+            var range = 30
+
+            var minutes = Math.floor(Math.random() * range + 1);  // Allow half an hour shuffle.
+            var shuffle = minutes * 60 * 1000
+            shuffle *= Math.round(Math.random()) ? 1 : -1; // Randomly late or early from setpoint
+
+            startTimes = startTime.split(":")
+            endTimes = endTime.split(":")
+
+            // Year , month and day does not matter, we only use this to add / subtract from hour/min
+            var startDate = new Date(2011, 6, 15, startTimes[0], startTimes[1], 0, 0);
+            var endDate = new Date(2011, 6, 15, endTimes[0], endTimes[1], 0, 0);
+
+            var newStartDate = new Date(startDate - shuffle);
+            var newEndDate = new Date(endDate - shuffle)
+
+            var startTime = newStartDate.toTimeString().substr(0,5)
+            var endTime = newEndDate.toTimeString().substr(0,5)
+        }
+
+        await new Promise(r => setTimeout(r, 1000));
+
         document.getElementById("addInOut").click();
 
         // We wait a bit to load the inn/out page
