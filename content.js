@@ -34,8 +34,9 @@ async function fillOut(skipAlert = false) {
         var startTime = fillButton.attr("start-time");
         var endTime = fillButton.attr("end-time");
         var manual = fillButton.attr("manual");
+        var randomness = fillButton.attr("randomness");
 
-        if(true) {
+        if(randomness === "true") {
             var range = 30
 
             var minutes = Math.floor(Math.random() * range + 1);  // Allow half an hour shuffle.
@@ -152,13 +153,16 @@ chrome.storage.sync.get(
         startTime: '09:00',
         endTime: '16:35',
         music: false,
-        manual: false
+        manual: false,
+        randomness : false
     },
     function(settings) {
         startTime = settings.startTime;
         endTime = settings.endTime;
         music = settings.music;
-        manual = settings.manual
+        manual = settings.manual;
+        randomness = settings.randomness;
+
     }
 );
 
@@ -178,6 +182,6 @@ $(document).ready(function() {
         (document.head||document.documentElement).appendChild(sound);
     }
 
-    $("#editing-day ul").append('<li> <button title="Fyll ut dag med din vanlige arbeidstid" onClick="fillOut()" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" manual="'+manual+'" type="button"> Fyll ut dag </button></li>');
+    $("#editing-day ul").append('<li> <button title="Fyll ut dag med din vanlige arbeidstid" onClick="fillOut()" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" manual="'+manual+'" randomness="'+randomness+'" type="button"> Fyll ut dag </button></li>');
     $("#calendar-nav").prepend('<button title="Fyll ut alle dager uten registreringer med din vanlige abreidstid" onClick="fillMonth()" music="'+music+'" class="fyll-mnd" type="button"> Auto-fyll mnd </button>');
 });

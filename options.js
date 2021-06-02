@@ -4,11 +4,13 @@ function save_options() {
     var endTime = document.getElementById('endTime').value;
     var music = document.getElementById('music').checked;
     var manual = document.getElementById('manual').checked;
+    var randomness = document.getElementById('randomness').checked;
     chrome.storage.sync.set({
       startTime: startTime,
       endTime: endTime,
       music: music,
-      manual: manual
+      manual: manual,
+      randomness: randomness
     }, function() {
       // Update status to let user know options were saved.
       var status = document.getElementById('status');
@@ -22,12 +24,14 @@ function save_options() {
       startTime: '09:00',
       endTime: '16:35',
       music: false,
-      manual: false
+      manual: false,
+      randomness: false
     }, function(items) {
       document.getElementById('startTime').value = items.startTime;
       document.getElementById('endTime').value = items.endTime;
       document.getElementById('music').checked = items.music;
       document.getElementById('manual').checked = items.manual;
+      document.getElementById('randomness').checked = items.randomness;
     });
   }
   document.addEventListener('DOMContentLoaded', restore_options);
