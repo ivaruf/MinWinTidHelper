@@ -172,7 +172,7 @@ script.textContent = fillOut.toString() + fillMonth.toString() + waitAwhileAndLi
 script.parentNode.removeChild(script);
 
 $(document).ready(function() {
-    if (music === true) {
+    if (typeof music !== 'undefined' && music === true) {
         var sound      = document.createElement('audio');
         sound.id       = 'audio-player';
         sound.controls = 'controls';
