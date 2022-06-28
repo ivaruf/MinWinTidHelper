@@ -10,7 +10,7 @@
     "storage"
   ],
   "web_accessible_resources": [
-    "music/elevator.mp3"
+    "music/elevator.mp3", "helpers.js"
   ],
   "content_scripts": [
     {
