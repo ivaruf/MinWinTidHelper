@@ -16,7 +16,7 @@ Dager hvor du ikke jobber din normale arbeidstid må du fylle ut manuelt som tid
 8. Ferdig!
 
 ## Bruk
-*To nye knapper kommer frem i Vedlikeholds vinduet:*
+*Tre nye knapper kommer frem i Vedlikeholds vinduet:*
 
 1: **Fyll ut dag** ved siden av "Beregn" knappen vil automatisk fylle inn 09:00 til 16:35 for denne dagen, eller start slutt tid man har satt i brukervalg.
 
@@ -24,6 +24,8 @@ Dager hvor du ikke jobber din normale arbeidstid må du fylle ut manuelt som tid
 Du kan auto-fylle så mange ganger du ønsker i løpet av en måned, da verdier aldri blir overskrevet, og den stopper når den kommer til dagen i dag (minWINTID tillater ikke å føre frem i tid).
 
 Normal arbeidsflyt vil være å fylle unntak i løpet av en måned, og så klikke en gang på "Auto-fyll mnd" når måned er over.
+
+3: **Trene?** ved siden av fyll ut dag knappen. Denne legger til fravær av typen trening i arbeidstiden fra kl 11 - > 12. Denne kan kjøres selv etter at timer er regisrert på dagen.
 
 
 **OBS!**
