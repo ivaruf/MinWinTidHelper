@@ -98,6 +98,24 @@ async function fillOut(skipAlert = false) {
     }
 }
 
+async function fillTrene() {
+    document.getElementById("expand-absence").click();;
+
+    var absencelist = document.getElementById("absencelist")
+    absencelist.selectedIndex = 33;
+    absencelist.dispatchEvent(new Event("change"));
+
+    await new Promise(r => setTimeout(r, 100));
+    document.getElementById("createAbsence-hours-first").value = "11:00";
+    document.getElementById("createAbsence-hours-last").value = "12:00";
+    document.getElementById("delavdag").click();
+    await new Promise(r => setTimeout(r, 100));
+    document.getElementById("createAbsence-hours-first").dispatchEvent(new Event("change"));
+    document.getElementById("createAbsence-hours-last").dispatchEvent(new Event("change"));
+    await new Promise(r => setTimeout(r, 100));
+    document.getElementById("addAbsencebutton").click();
+}
+
 async function fillMonth() {
     const playMusic = $(".fyll-mnd").attr("music") === "true";
     if(playMusic) {

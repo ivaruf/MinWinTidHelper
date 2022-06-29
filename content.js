@@ -34,6 +34,6 @@ $(document).ready(function() {
 
     $("#editing-day ul").
         append('<li> <button title="Fyll ut dag med din vanlige arbeidstid" onClick="fillOut()" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" manual="'+manual+'" randomness="'+randomness+'" type="button"> Fyll ut dag </button></li>').
-        append('<li> <input type="checkbox" id="trening"> <label for="trening" style="display: inline-block; margin: 6px;">Trente i arbeidstiden?</label></li>');
+        append('<li> <button title="Trykk for å legge til trening" onClick="fillTrene()" class="auto-filler">Trene?</button></li>');
     $(".calendar-nav-buttons").prepend('<button title="Fyll ut alle dager uten registreringer med din vanlige abreidstid" onClick="fillMonth()" music="'+music+'" class="fyll-mnd" type="button"> Auto-fyll mnd </button>');
 });
