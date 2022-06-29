@@ -122,7 +122,7 @@ async function fillMonth() {
         $("#audio-player")[0].play();
     }
 
-    $(".loader-overlay-main").removeClass("ng-hide");
+    $(".loader-overlay-main")[0].setAttribute("style", "display: block")
     for (let day = 1; day < 32; day++) {
         var node = $("[data-cy=maintenance-calendar-day-"+day+"]").not(".fc-other-month");
 
@@ -159,7 +159,7 @@ async function fillMonth() {
             console.log("Ikke arbeidsdag, eller finnes registrering for: " + day);
         }
     }
-    $(".loader-overlay-main").addClass("ng-hide");
+    $(".loader-overlay-main")[0].setAttribute("style", "display: none")
     if (playMusic) {
         $("#audio-player")[0].pause();
     }
