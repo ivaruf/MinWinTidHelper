@@ -20,7 +20,7 @@ chrome.storage.sync.get(
 
 $(document).ready(function() {
     var helpers = document.createElement('script');
-    helpers.src = chrome.extension.getURL('helpers.js');
+    helpers.src = chrome.runtime.getURL('helpers.js');
     document.head.appendChild(helpers);
     if (typeof music !== 'undefined' && music === true) {
         var sound      = document.createElement('audio');
