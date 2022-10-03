@@ -164,3 +164,5 @@ async function fillMonth() {
         $("#audio-player")[0].pause();
     }
 }
+
+console.log("Ran helper script! From github!")

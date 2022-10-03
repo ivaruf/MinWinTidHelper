@@ -9,7 +9,7 @@
   "permissions": [
     "storage"
   ],
-  "host_permissions": ["https://*.no/Vedlikehold"],
+  "host_permissions": ["https://*.no/Maintenance"],
   "web_accessible_resources": [{
     "resources" : ["music/elevator.mp3", "helpers.js"],
     "matches": ["<all_urls>"]
@@ -17,7 +17,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*.no/Vedlikehold"
+        "https://*.no/Maintenance"
       ],
       "js": ["jquery.js", "content.js"]
     }
