@@ -18,7 +18,9 @@ chrome.storage.sync.get(
     }
 );
 
-$(document).ready(function() {
+$(document).ready(async function() {
+
+    await new Promise(r => setTimeout(r, 1000));
     var helpers = document.createElement('script');
     helpers.src = chrome.runtime.getURL('helpers.js');
     document.head.appendChild(helpers);
@@ -35,5 +37,5 @@ $(document).ready(function() {
     $("#day-edit-buttons-list").
         append('<li> <button title="Fyll ut dag med din vanlige arbeidstid" onClick="fillOut()" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" manual="'+manual+'" randomness="'+randomness+'" type="button"> Fyll ut dag </button></li>').
         append('<li> <button title="Trykk for å legge til trening" onClick="fillTrene()" class="auto-filler">Trene?</button></li>');
-    $(".calendar-nav-buttons").prepend('<button title="Fyll ut alle dager uten registreringer med din vanlige abreidstid" onClick="fillMonth()" music="'+music+'" class="fyll-mnd" type="button"> Auto-fyll mnd </button>');
+    $("#addApprovalBtn").after('<button title="Fyll ut alle dager uten registreringer med din vanlige abreidstid" onClick="fillMonth()" music="'+music+'" class="fyll-mnd" type="button"> Auto-fyll mnd </button>');
 });

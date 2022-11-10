@@ -7,23 +7,15 @@ async function waitAwhileAndListen(message = "laster") {
     while(true) {
         await new Promise(r => setTimeout(r, 1000));
         console.log(message)
-        if ($("#loading-image:hidden").length > 0) {
+        if (!$(".loader-overlay-main").is(":visible")) {
             break;
         }
     }
 }
 
-// Simulate some user activity to trigger the change
-function jiggle(element) {
-    element.keydown();
-    element.keypress();
-    element.keyup();
-    element.blur();
-}
 
 async function fillOut(skipAlert = false) {
     var dayIsEmpty = $("#registrations")[0].innerHTML.indexOf("Ingen registreringer denne dagen") > 0;
-    // TODO check how many "day-checkin" we have ... and skip if you cannot find it.
     if(!dayIsEmpty) {
         if(!skipAlert) {
             alert("Kan bare auto-fylle ut for en tom dag.");
@@ -56,6 +48,7 @@ async function fillOut(skipAlert = false) {
             var endTime = newEndDate.toTimeString().substr(0,5)
         }
 
+        // TODO this is unsafe, find a better way to wait - could cause problems if the page is slow to load
         await new Promise(r => setTimeout(r, 1000));
 
         document.getElementById("addInOut").click();
@@ -63,33 +56,30 @@ async function fillOut(skipAlert = false) {
         // We wait a bit to load the inn/out page
         await waitAwhileAndListen()
 
-        if($("#registrations .day-time-in").length === 2) {
+        var timeInputs = $("[data-cy='time-input']");
+
+        if(timeInputs.length !== 2) {
             alert("Kan ikke auto-fylle for den dag som ikke er over.")
             return false;
         }
 
-        //Why yes, all the input id-s are reg-input-0, of course.
-        document.getElementById("reg-input-0").value = startTime;
-        var inntid = $("#reg-input-0")
-
-        jiggle(inntid);
+        var inntid = timeInputs[0];
+        inntid.value = startTime;
+        angular.element(inntid).triggerHandler('input');
 
         // wait some more
         await new Promise(r => setTimeout(r, 1000));
 
-        // Oh look, the id has changed to reg-input-86400, how quaint.
-        // ... actually it is 86400 / 3600 = 24. In other words midnight
-        // You can see what time is in the input based on the id that change ...
-        // Amazing!
-        document.getElementById("reg-input-86400").value = endTime;
-        var uttid = $("#reg-input-86400");
+        var uttid = timeInputs[1];
+        uttid.value = endTime
+        angular.element(uttid).triggerHandler('input');
 
-        // Simulate some more user motion
-        jiggle(uttid)
+        //wait
+        await new Promise(r => setTimeout(r, 1000));
 
         // Good to go, hit it!
         if(manual === "true") {
-            document.getElementById("lagreknapp").click();
+            document.getElementById("save-registrations-button").click();
         }
         else {
             document.getElementById("calculate-button").click();
@@ -99,21 +89,38 @@ async function fillOut(skipAlert = false) {
 }
 
 async function fillTrene() {
-    document.getElementById("expand-absence").click();;
+    document.getElementById("expand-absence").click();
+    await new Promise(r => setTimeout(r, 1000));
 
     var absencelist = document.getElementById("absencelist")
-    absencelist.selectedIndex = 33;
-    absencelist.dispatchEvent(new Event("change"));
+
+    absencelist.click();
+
+    await new Promise(r => setTimeout(r, 1000));
+
+    var rowHeaders = $("[role='rowheader']");
+    for(var i = 0; i < rowHeaders.length; i++) {
+        var rowHeader = rowHeaders[i];
+        console.log(rowHeader.innerHTML)
+        if(rowHeader.innerHTML.indexOf("Trening") > 0) {
+            rowHeader.click();
+            break;
+        }
+    }
 
     await new Promise(r => setTimeout(r, 100));
-    document.getElementById("createAbsence-hours-first").value = "11:00";
-    document.getElementById("createAbsence-hours-last").value = "12:00";
-    document.getElementById("delavdag").click();
-    await new Promise(r => setTimeout(r, 100));
-    document.getElementById("createAbsence-hours-first").dispatchEvent(new Event("change"));
-    document.getElementById("createAbsence-hours-last").dispatchEvent(new Event("change"));
-    await new Promise(r => setTimeout(r, 100));
-    document.getElementById("addAbsencebutton").click();
+
+    let innTid = document.getElementById("createAbsence-hours-first");
+    innTid.value = "11:00";
+    let uttid = document.getElementById("createAbsence-hours-last");
+    uttid.value = "12:00";
+
+    angular.element(innTid).triggerHandler('input');
+    angular.element(uttid).triggerHandler('input');
+
+    await new Promise(r => setTimeout(r, 1000));
+
+    document.getElementById("save-absence-form").click();
 }
 
 async function fillMonth() {
@@ -122,32 +129,43 @@ async function fillMonth() {
         $("#audio-player")[0].play();
     }
 
+
     $(".loader-overlay-main")[0].setAttribute("style", "display: block")
-    for (let day = 1; day < 32; day++) {
-        var node = $("[data-cy=maintenance-calendar-day-"+day+"]").not(".fc-other-month");
 
-        // If we can't find the node, then we skip that day.
-        if(node.length === 0 || node === undefined) {
-            continue
-        }
 
-        // Do not even click if it already has a correction. (pruple dot)
-        if($("[data-cy=maintenance-calendar-day-"+day+"] .day-correction").length > 0) {
+    var dayElements = $(".day-container").not(".day-outside-month");
+    // loop dayElements
+    var today = new Date();
+    for(var i = 0; i < dayElements.length; i++) {
+
+        var dayElement = dayElements[i];
+        var correction = dayElement.getElementsByClassName("day-correction")
+
+        // Skip if day has a correction (purple dot)
+        if(correction.length > 0) {
             continue;
         }
-        if(node.length === 1 && node[0].cellIndex === 6 || node[0].cellIndex === 7) {
-            console.log("Weekend day... skipping");
+
+        var dayTitle = dayElement.getAttribute("title").substr(0, 10);
+        var [day, month, year] = dayTitle.split('.');
+        var elementDate = new Date(+year, month - 1, +day);
+
+        // Skip if we are in the future
+        if(today <= elementDate) {
             continue;
         }
-        node.click();
-        await waitAwhileAndListen("Venter på lasting av side ...");
-        if($(".ui-dialog:visible").length > 0) {
-             alert("Last inn siden på nytt for å auto-fylle mnd.");
-             break;
-        }
 
-        const dayIsEmpty = $("#registrations")[0].innerHTML.indexOf("Ingen registreringer denne dagen") > 0;
-        const dayIsWorkDay = $("#mustering-length")[0].value === "07:35";
+        dayElement.click();
+
+        // this is unsafe ... might fill out saturdays etc if it is not loaded ...
+        await new Promise(r => setTimeout(r, 1000));
+
+        var dayIsEmpty = $("[data-cy='no-registrations-on-day']").length === 1;
+        var dayIsWorkDay = $("#scheme_length_input_attendance")[0].value === '07:35'
+
+
+
+
         if (dayIsWorkDay && dayIsEmpty) {
             console.log("Filling out!");
             var didFill = await fillOut(true);
@@ -158,11 +176,12 @@ async function fillMonth() {
         } else {
             console.log("Ikke arbeidsdag, eller finnes registrering for: " + day);
         }
+
     }
+
     $(".loader-overlay-main")[0].setAttribute("style", "display: none")
     if (playMusic) {
         $("#audio-player")[0].pause();
     }
-}
 
-console.log("Ran helper script! From github!")
+}
