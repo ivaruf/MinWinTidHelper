@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MinWinTidHelper",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "options_ui": {
     "page": "options.html",
     "open_in_tab": false
@@ -11,7 +11,7 @@
   ],
   "host_permissions": ["https://*.no/Maintenance"],
   "web_accessible_resources": [{
-    "resources" : ["music/elevator.mp3", "helpers.js"],
+    "resources" : ["music/elevator.mp3"],
     "matches": ["<all_urls>"]
   }],
   "content_scripts": [
