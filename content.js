@@ -116,23 +116,34 @@ $(document).ready(async function() {
         document.getElementById("expand-absence").click();
         await new Promise(r => setTimeout(r, 1000));
 
-        var absencelist = document.getElementById("absencelist")
+        var absencelist = document.getElementById("absence-list")
 
         absencelist.click();
 
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 2000));
 
-        var rowHeaders = $("[role='rowheader']");
-        for(var i = 0; i < rowHeaders.length; i++) {
-            var rowHeader = rowHeaders[i];
-            console.log(rowHeader.innerHTML)
-            if(rowHeader.innerHTML.indexOf("Trening") > 0) {
-                rowHeader.click();
-                break;
+        var tbodyElements = $('#vue-scroll-table5 tbody');
+
+
+        for (var i = 0; i < tbodyElements.length; i++) {
+            var tbody = tbodyElements[i];
+            // Get the row (tr) within this tbody
+            var row = tbody.querySelector('tr');
+            // Check if the row exists (it should, but just in case)
+            if (row) {
+                // Get all cells (td) in the row
+                var cells = row.querySelectorAll('td');
+                // Iterate over the cells to find the target text
+                for (var j = 0; j < cells.length; j++) {
+                    var cell = cells[j];
+                    if (cell.innerHTML.indexOf("Trening") > 0) {
+                        cell.click()
+                    }
+                }
             }
         }
 
-        await new Promise(r => setTimeout(r, 100));
+        await new Promise(r => setTimeout(r, 1000));
 
         let innTid = document.getElementById("createAbsence-hours-first");
         innTid.value = "11:00";
@@ -223,9 +234,9 @@ $(document).ready(async function() {
         (document.head||document.documentElement).appendChild(sound);
     }
 
-    $("#day-edit-buttons-list").
-        append('<li> <button title="Fyll ut dag med din vanlige arbeidstid" id="dagKnapp" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" manual="'+manual+'" randomness="'+randomness+'" type="button"> Fyll ut dag </button></li>').
-        append('<li> <button title="Trykk for å legge til trening" id="treneKnapp" class="auto-filler">Trene?</button></li>');
+    $("#editing-day").
+        append('<button style="margin-left:5px" title="Fyll ut dag med din vanlige arbeidstid" id="dagKnapp" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" manual="'+manual+'" randomness="'+randomness+'" type="button"> Fyll ut dag </button>').
+        append('<button style="margin-left:5px" title="Trykk for å legge til trening" id="treneKnapp" class="auto-filler">Trene?</button>');
     $("#addApprovalBtn").after('<button title="Fyll ut alle dager uten registreringer med din vanlige abreidstid" id="mndKnapp" music="'+music+'" class="fyll-mnd" type="button"> Auto-fyll mnd </button>');
 
     document.getElementById("dagKnapp").addEventListener("click", fillOut);
