@@ -122,7 +122,7 @@ $(document).ready(async function() {
 
         await new Promise(r => setTimeout(r, 2000));
 
-        var tbodyElements = $('#vue-scroll-table5 tbody');
+        var tbodyElements = $('[id^="vue-scroll-table"] tbody');
 
 
         for (var i = 0; i < tbodyElements.length; i++) {
