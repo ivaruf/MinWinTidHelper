@@ -39,6 +39,8 @@ Normal arbeidsflyt vil være å fylle unntak i løpet av en måned, og så klikk
 ## Brukervalg
 Klikk på extension-icon i chrome og velg "options". Du kan nå sette en annen start og slutt tid som stemmer mer med hvordan du vanligvis jobber. Det kan være nøyaktig 07:35 timer, mer eller mindre. Det er viktig at det skrives inn nøyaktig på format "xx:xx" hvor x er et tall og tilsammen blir et gyldig klokkeslett.
 
+Hvis du har arbeidsdager kortere enn 07:35 timer, f.eks. hvis du jobber 80%, 06:04 timer, kan du endre på "Arb. lengde" valget i menyen.
+
 Beregn manuelt: sjekk av denne boksen dersom du ikke ønsker at MinWinTidHelper skal beregene for hver dag som fylles ut.
 dette sparer litt tid, men du må da selv huske å trykke beregn senere.
 
