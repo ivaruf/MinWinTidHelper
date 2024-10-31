@@ -4,6 +4,7 @@ chrome.storage.sync.get(
     {
         startTime: '09:00',
         endTime: '16:35',
+        dayLength: '07:35',
         music: false,
         manual: false,
         randomness : false
@@ -11,10 +12,10 @@ chrome.storage.sync.get(
     function(settings) {
         startTime = settings.startTime;
         endTime = settings.endTime;
+        dayLength = settings.dayLength;
         music = settings.music;
         manual = settings.manual;
         randomness = settings.randomness;
-
     }
 );
 
@@ -196,7 +197,7 @@ $(document).ready(async function() {
             await new Promise(r => setTimeout(r, 1000));
 
             var dayIsEmpty = $("[data-cy='no-registrations-on-day']").length === 1;
-            var dayIsWorkDay = $("#scheme_length_input_attendance")[0].value === '07:35'
+            var dayIsWorkDay = $("#scheme_length_input_attendance")[0].value === dayLength
 
 
 
