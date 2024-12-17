@@ -258,6 +258,102 @@ $(document).ready(async function() {
 
     }
 
+// Helper to get displayed month/year
+    function getDisplayedMonthYear() {
+        var caption = $(".month-table caption").text().trim();
+        var monthsMap = {
+            "Januar":0,"Februar":1,"Mars":2,"April":3,"Mai":4,"Juni":5,
+            "Juli":6,"August":7,"September":8,"Oktober":9,"November":10,"Desember":11
+        };
+        var parts = caption.split(" ");
+        var monthName = parts[0];
+        var year = parseInt(parts[1],10);
+        var monthIndex = monthsMap[monthName];
+        return {year: year, monthIndex: monthIndex};
+    }
+
+    function getDaysInMonth(year, monthIndex) {
+        return new Date(year, monthIndex+1, 0).getDate();
+    }
+
+// Approve a range of days in the current month
+    async function approveDayRange(startDay, endDay) {
+        var {year, monthIndex} = getDisplayedMonthYear();
+        var daysInMonth = getDaysInMonth(year, monthIndex);
+        if (endDay > daysInMonth) endDay = daysInMonth;
+
+        var dayElements = $(".day-container").not(".day-outside-month");
+        var dayMap = {};
+        for (var i = 0; i < dayElements.length; i++) {
+            var el = dayElements[i];
+            var dayTitle = el.getAttribute("title").substr(0, 10);
+            var [d,m,y] = dayTitle.split('.');
+            var dayNum = parseInt(d,10);
+            var thisYear = parseInt(y,10);
+            var thisMonth = parseInt(m,10)-1;
+            if (thisYear === year && thisMonth === monthIndex) {
+                dayMap[dayNum] = el;
+            }
+        }
+
+        for (var dayNum = startDay; dayNum <= endDay; dayNum++) {
+            var el = dayMap[dayNum];
+            if (!el) continue;
+            el.click();
+            await new Promise(r => setTimeout(r, 1000));
+
+            var approveBtn = document.querySelector('[data-cy="btn-approve-day"]');
+            if (approveBtn && !approveBtn.disabled) {
+                approveBtn.click();
+                await new Promise(r => setTimeout(r, 500));
+            } else {
+                console.log("No approve button or already approved for day " + dayNum);
+            }
+        }
+        console.log("Approved days " + startDay + " to " + endDay);
+    }
+
+    function getApprovalRanges() {
+        var {year, monthIndex} = getDisplayedMonthYear();
+        var firstOfMonth = new Date(year, monthIndex, 1);
+        var weekdayOfFirst = firstOfMonth.getDay(); // 0=Sunday,1=Monday,...6=Saturday
+        var daysInMonth = getDaysInMonth(year, monthIndex);
+
+        // Find first Monday
+        var firstMonday = 1 + ((1 - weekdayOfFirst + 7) % 7);
+        if (firstMonday === 0) firstMonday = 7; // fallback, normally not needed
+
+        let firstRangeStart, firstRangeEnd, secondRangeStart, secondRangeEnd;
+
+        if (weekdayOfFirst === 0) {
+            // Starts on Sunday
+            // "Godkjenn første": days 1–15 (1 partial day (Sunday) + 2 full weeks)
+            // "Godkjenn andre": days 16–end of month
+            firstRangeStart = 1;
+            firstRangeEnd = Math.min(15, daysInMonth);
+            secondRangeStart = 16;
+            secondRangeEnd = daysInMonth;
+
+        } else {
+            // Not Sunday start
+            // "Godkjenn første": from day 1 to (firstMonday+13)
+            // covers partial (if any) plus two full weeks starting from firstMonday
+            firstRangeStart = 1;
+            firstRangeEnd = Math.min(firstMonday+13, daysInMonth);
+
+            // "Godkjenn andre": from (firstMonday+14) to end of month
+            secondRangeStart = firstMonday+14;
+            if (secondRangeStart > daysInMonth) {
+                secondRangeStart = daysInMonth; // If we run out of days, no harm
+            }
+            secondRangeEnd = daysInMonth;
+        }
+
+        return {
+            firstRange: [firstRangeStart, firstRangeEnd],
+            secondRange: [secondRangeStart, secondRangeEnd]
+        };
+    }
     // ############## helpers end ##############
 
     await new Promise(r => setTimeout(r, 1000));
@@ -275,10 +371,24 @@ $(document).ready(async function() {
         append('<button style="margin-left:5px" title="Fyll ut dag med din vanlige arbeidstid" id="dagKnapp" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" manual="'+manual+'" randomness="'+randomness+'" type="button"> Fyll ut dag </button>').
         append('<button style="margin-left:5px" title="Trykk for å legge til trening" id="treneKnapp" class="auto-filler">Trene?</button>').
         append('<button style="margin-left:5px" title="Trykk for hel fleks dag" id="fleksKnapp" class="auto-filler">Fleks?</button>');
+
     $("#addApprovalBtn").after('<button title="Fyll ut alle dager uten registreringer med din vanlige abreidstid" id="mndKnapp" music="'+music+'" class="fyll-mnd" type="button"> Auto-fyll mnd </button>');
+    $("#mndKnapp").after('<button title="Godkjenn første" id="approveFirst" class="approve-weeks" type="button">Godkjenn første</button>');
+    $("#approveFirst").after('<button title="Godkjenn andre" id="approveSecond" class="approve-weeks" type="button">Godkjenn andre</button>');
+
 
     document.getElementById("dagKnapp").addEventListener("click", fillOut);
     document.getElementById("treneKnapp").addEventListener("click", fillTrene);
     document.getElementById("mndKnapp").addEventListener("click", fillMonth);
     document.getElementById("fleksKnapp").addEventListener("click", fillFlekse);
+
+    document.getElementById("approveFirst").addEventListener("click", async function() {
+        var {firstRange} = getApprovalRanges();
+        await approveDayRange(firstRange[0], firstRange[1]);
+    });
+
+    document.getElementById("approveSecond").addEventListener("click", async function() {
+        var {secondRange} = getApprovalRanges();
+        await approveDayRange(secondRange[0], secondRange[1]);
+    });
 });
