@@ -300,12 +300,13 @@ $(document).ready(async function() {
             var el = dayMap[dayNum];
             if (!el) continue;
             el.click();
-            await new Promise(r => setTimeout(r, 1000));
+            await waitAwhileAndListen()
 
             var approveBtn = document.querySelector('[data-cy="btn-approve-day"]');
             if (approveBtn && !approveBtn.disabled) {
                 approveBtn.click();
-                await new Promise(r => setTimeout(r, 500));
+                await waitAwhileAndListen()
+
             } else {
                 console.log("No approve button or already approved for day " + dayNum);
             }
