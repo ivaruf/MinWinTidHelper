@@ -374,8 +374,8 @@ $(document).ready(async function() {
         append('<button style="margin-left:5px" title="Trykk for hel fleks dag" id="fleksKnapp" class="auto-filler">Fleks?</button>');
 
     $("#addApprovalBtn").after('<button title="Fyll ut alle dager uten registreringer med din vanlige abreidstid" id="mndKnapp" music="'+music+'" class="fyll-mnd" type="button"> Auto-fyll mnd </button>');
-    $("#mndKnapp").after('<button title="Godkjenn første" id="approveFirst" class="approve-weeks" type="button">Godkjenn første</button>');
-    $("#approveFirst").after('<button title="Godkjenn andre" id="approveSecond" class="approve-weeks" type="button">Godkjenn andre</button>');
+    $("#mndKnapp").after('<button title="Godkjenn halve" id="approveFirst" class="approve-weeks" type="button">Godkjenn halve</button>');
+
 
 
     document.getElementById("dagKnapp").addEventListener("click", fillOut);
@@ -386,10 +386,5 @@ $(document).ready(async function() {
     document.getElementById("approveFirst").addEventListener("click", async function() {
         var {firstRange} = getApprovalRanges();
         await approveDayRange(firstRange[0], firstRange[1]);
-    });
-
-    document.getElementById("approveSecond").addEventListener("click", async function() {
-        var {secondRange} = getApprovalRanges();
-        await approveDayRange(secondRange[0], secondRange[1]);
     });
 });
