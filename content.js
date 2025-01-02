@@ -1,4 +1,5 @@
-// content.js
+// content.js  - IMPORTANT _ KEEP VERSION ON LINE 2 UP TO DATE
+let version = "1.0.7";
 
 chrome.storage.sync.get(
     {
