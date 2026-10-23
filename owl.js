@@ -235,10 +235,12 @@ window.Owl = (() => {
     return { mode: 'corner', left: 20, top: innerHeight - h - 14 };
   };
 
-  const placeHome = () => {
+  // glide: when the page shifts under the perched owl (not scrolling), it flaps to the new spot.
+  const placeHome = (glide = false) => {
     if (owl.hidden) return;
     const spot = homeSpot();
     const before = owl.getBoundingClientRect();
+    const old = { left: parseFloat(owl.style.left), top: parseFloat(owl.style.top) };
     owl.style.left = `${spot.left}px`;
     owl.style.top = `${spot.top}px`;
     owl.classList.toggle('on-left', spot.left + owl.offsetWidth / 2 < innerWidth / 2);
@@ -246,14 +248,21 @@ window.Owl = (() => {
     const switched = homeMode && spot.mode !== homeMode;
     homeMode = spot.mode;
     // Between the corner and the birdhouse: fly over instead of jumping.
-    if (switched && !owl.classList.contains('flying')) {
+    const atHome = pos.x === 0 && pos.y === 0;
+    if (owl.classList.contains('flying')) return;
+    if (switched) {
       pos = { x: before.left - spot.left, y: before.top - spot.top };
       moveTo({ x: 0, y: 0 }, 700);
+    } else if (glide && atHome && performance.now() - lastScroll > 250 && Math.hypot(spot.left - old.left, spot.top - old.top) > 2) {
+      pos = { x: old.left - spot.left, y: old.top - spot.top };
+      moveTo({ x: 0, y: 0 }, 350);
     }
   };
 
   let placeQueued = false;
+  let lastScroll = 0;
   const schedulePlace = () => {
+    lastScroll = performance.now();
     if (placeQueued) return;
     placeQueued = true;
     requestAnimationFrame(() => {
@@ -263,7 +272,7 @@ window.Owl = (() => {
   };
   addEventListener('scroll', schedulePlace, { capture: true, passive: true });
   addEventListener('resize', schedulePlace);
-  setInterval(placeHome, 500); // minWINTID's layout shifts as it loads days
+  setInterval(() => placeHome(true), 300); // minWINTID's layout shifts as it loads days
   placeHome();
 
   const setPerch = (el) => {

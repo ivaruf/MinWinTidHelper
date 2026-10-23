@@ -413,19 +413,22 @@ function addBirdhouse() {
     button.id = 'mwh-birdhouse';
     button.type = 'button';
     button.title = 'Åpne innstillingene for minWINTID helper';
-    button.innerHTML = `<span class="mwh-birdhouse-art">${BIRDHOUSE_SVG}<span class="mwh-perch"></span></span><span class="mwh-birdhouse-label">minWINTID helper innstillinger</span>`;
+    button.innerHTML = `<span class="mwh-birdhouse-art">${BIRDHOUSE_SVG}<span class="mwh-perch"></span></span>`;
     button.addEventListener('click', () => chrome.runtime.sendMessage({ type: 'openOptions' }));
     button.addEventListener('mouseenter', () => Owl.say('Det er der jeg bor! 🏠 Klikk for innstillinger.', 2200));
+    // Like minWINTID's own "WinTid versjon ..." in the footer.
+    const version = document.createElement('span');
+    version.className = 'mwh-version';
+    version.textContent = `WinTidHelper versjon ${chrome.runtime.getManifest().version}`;
     const row = document.createElement('div');
     row.className = 'mwh-birdhouse-row';
-    row.append(button);
+    row.append(button, version);
     main.append(row);
     Owl.setPerch(button.querySelector('.mwh-perch'));
 }
 
 // minWINTID renders its views on the fly, so (re)insert the buttons whenever they're missing.
 function addButtons() {
-    addBirdhouse();
     const editingDay = $('#editing-day');
     if (editingDay && !$('#dagKnapp')) {
         const like = '#calculate-button';
@@ -449,5 +452,12 @@ function addButtons() {
     }
 }
 
-addButtons();
-setInterval(addButtons, 1000);
+// The birdhouse goes in last: our buttons in the day panel can wrap to a new line and push the page
+// down, which would make the owl sink with it. If the day panel never shows up, add it after 5 s.
+function addEverything() {
+    addButtons();
+    if ($('#dagKnapp') || performance.now() > 5000) addBirdhouse();
+}
+
+addEverything();
+setInterval(addEverything, 1000);

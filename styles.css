@@ -117,6 +117,8 @@
 /* The owl's birdhouse at the bottom of the page, which opens the options. minWINTID styles every
    <button> as a solid block, so undo that here. */
 .mwh-birdhouse-row {
+    display: flex;
+    align-items: flex-end;
     padding: 34px 16px 12px; /* room for the owl's head above the branch */
 }
 
@@ -157,17 +159,12 @@
     height: 1px;
 }
 
-.mwh-birdhouse-label {
-    margin-left: 26px; /* clear of the owl on the branch */
-    padding-bottom: 14px;
-    opacity: .8;
-    transition: opacity .15s;
-}
-
-#mwh-birdhouse:hover .mwh-birdhouse-label,
-#mwh-birdhouse:focus-visible .mwh-birdhouse-label {
-    opacity: 1;
-    text-decoration: underline;
+/* Plain text like minWINTID's "WinTid versjon ..." footer, not a link. */
+.mwh-version {
+    margin-left: 34px; /* clear of the owl on the branch */
+    padding-bottom: 18px;
+    color: #6f4a2f;
+    font-size: .95rem;
 }
 
 .mwh-house {
