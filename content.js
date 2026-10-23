@@ -1,391 +1,324 @@
 // content.js  - IMPORTANT _ KEEP VERSION ON LINE 2 UP TO DATE
-let version = "1.0.7";
+let version = "2.0.0";
 
-chrome.storage.sync.get(
-    {
-        startTime: '09:00',
-        endTime: '16:35',
-        dayLength: '07:35',
-        music: false,
-        manual: false,
-        randomness : false
+// Adds the MinWinTidHelper buttons to the minWINTID Maintenance page. The owl lives in owl.js.
+const DEFAULTS = {
+    startTime: '09:00',
+    endTime: '16:35',
+    dayLength: '07:35',
+    music: false,
+    manual: false,
+    randomness: false,
+    showOwl: true,
+};
+
+let settings = { ...DEFAULTS };
+chrome.storage.sync.get(DEFAULTS).then((stored) => {
+    settings = stored;
+    Owl.setVisible(settings.showOwl);
+});
+// Changes in the options page apply right away, no reload needed.
+chrome.storage.onChanged.addListener((changes) => {
+    for (const [key, { newValue }] of Object.entries(changes)) settings[key] = newValue;
+    Owl.setVisible(settings.showOwl);
+});
+
+// ############## helpers ##############
+
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const isVisible = (el) => !!el && (el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0);
+
+// TODO(speed): these fixed waits are the same as in 1.x. Replace them with checks for the
+// actual page state once we know what minWINTID renders while loading.
+const wait = {
+    short: () => sleep(1000),
+    long: () => sleep(2000),
+    async loader(message = 'laster') {
+        do {
+            await sleep(1000);
+            console.log(message);
+        } while (isVisible($('.loader-overlay-main')));
     },
-    function(settings) {
-        startTime = settings.startTime;
-        endTime = settings.endTime;
-        dayLength = settings.dayLength;
-        music = settings.music;
-        manual = settings.manual;
-        randomness = settings.randomness;
+};
+
+function setInput(input, value) {
+    input.value = value;
+    input.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+}
+
+const toMinutes = (time) => {
+    const [h, m] = time.split(':').map(Number);
+    return h * 60 + m;
+};
+const toTime = (minutes) => {
+    const m = ((minutes % 1440) + 1440) % 1440;
+    return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+};
+
+// Moves start and end by the same 1-30 minutes, earlier or later, so the day length stays the same.
+function shuffleTimes(startTime, endTime) {
+    const shift = (Math.floor(Math.random() * 30) + 1) * (Math.random() < 0.5 ? 1 : -1);
+    return [toTime(toMinutes(startTime) + shift), toTime(toMinutes(endTime) + shift)];
+}
+
+// The day's date, from the title attribute "dd.mm.yyyy ...".
+function dayDate(dayElement) {
+    const [day, month, year] = dayElement.getAttribute('title').substr(0, 10).split('.');
+    return new Date(+year, month - 1, +day);
+}
+
+let busy = false;
+// Runs one action at a time, so a double click can't start two fills at once.
+const exclusive = (action) => async () => {
+    if (busy) {
+        Owl.say('Jeg er opptatt, et øyeblikk! 🦉');
+        return;
     }
-);
-
-$(document).ready(async function() {
-
-    var inputEvent = new Event('input', {
-        bubbles: true,
-        cancelable: true,
-    });
-
-    // helpers start
-    async function waitAwhileAndListen(message = "laster") {
-        while(true) {
-            await new Promise(r => setTimeout(r, 1000));
-            console.log(message)
-            if (!$(".loader-overlay-main").is(":visible")) {
-                break;
-            }
-        }
+    busy = true;
+    try {
+        await action();
+    } catch (e) {
+        console.error('[MinWinTidHelper]', e);
+        Owl.toast('Noe gikk galt. Se konsollen for detaljer.', 'error');
+    } finally {
+        busy = false;
     }
+};
 
+// ############## actions ##############
 
-    async function fillOut(skipAlert = false) {
-        var dayIsEmpty = $("#registrations")[0].innerHTML.indexOf("Ingen registreringer denne dagen") > 0;
-        if(!dayIsEmpty) {
-            if(!skipAlert) {
-                alert("Kan bare auto-fylle ut for en tom dag.");
-            }
-        } else {
-            var fillButton = $(".auto-filler");
-            var startTime = fillButton.attr("start-time");
-            var endTime = fillButton.attr("end-time");
-            var manual = fillButton.attr("manual");
-            var randomness = fillButton.attr("randomness");
-
-            if(randomness === "true") {
-                var range = 30
-
-                var minutes = Math.floor(Math.random() * range + 1);  // Allow half an hour shuffle.
-                var shuffle = minutes * 60 * 1000
-                shuffle *= Math.round(Math.random()) ? 1 : -1; // Randomly late or early from setpoint
-
-                startTimes = startTime.split(":")
-                endTimes = endTime.split(":")
-
-                // Year , month and day does not matter, we only use this to add / subtract from hour/min
-                var startDate = new Date(2011, 6, 15, startTimes[0], startTimes[1], 0, 0);
-                var endDate = new Date(2011, 6, 15, endTimes[0], endTimes[1], 0, 0);
-
-                var newStartDate = new Date(startDate - shuffle);
-                var newEndDate = new Date(endDate - shuffle)
-
-                var startTime = newStartDate.toTimeString().substr(0,5)
-                var endTime = newEndDate.toTimeString().substr(0,5)
-            }
-
-            // TODO this is unsafe, find a better way to wait - could cause problems if the page is slow to load
-            await new Promise(r => setTimeout(r, 1000));
-
-            document.getElementById("addInOut").click();
-
-            // We wait a bit to load the inn/out page
-            await waitAwhileAndListen()
-
-            var timeInputs = $("[data-cy='time-input']");
-
-            if(timeInputs.length !== 2) {
-                alert("Kan ikke auto-fylle for den dag som ikke er over.")
-                return false;
-            }
-
-            var inntid = timeInputs[0];
-            inntid.value = startTime;
-
-            inntid.dispatchEvent(inputEvent);
-
-            // wait some more
-            await new Promise(r => setTimeout(r, 1000));
-
-            var uttid = timeInputs[1];
-            uttid.value = endTime
-            uttid.dispatchEvent(inputEvent);
-
-            //wait
-            await new Promise(r => setTimeout(r, 1000));
-
-            // Good to go, hit it!
-            if(manual === "true") {
-                document.getElementById("save-registrations-button").click();
-            }
-            else {
-                document.getElementById("calculate-button").click();
-            }
-            return true;
-        }
+// Fills the open day with the user's normal hours. Returns the times used, or null if it couldn't.
+async function fillDay({ quiet = false } = {}) {
+    const registrations = $('#registrations');
+    if (!registrations?.innerHTML.includes('Ingen registreringer denne dagen')) {
+        if (!quiet) Owl.toast('Kan bare fylle ut en tom dag.', 'error');
+        return null;
     }
 
-    async function fillTrene() {
-        document.getElementById("expand-absence").click();
-        await new Promise(r => setTimeout(r, 1000));
+    let { startTime, endTime } = settings;
+    if (settings.randomness) [startTime, endTime] = shuffleTimes(startTime, endTime);
 
-        var absencelist = document.getElementById("absence-list")
+    await wait.short();
+    $('#addInOut').click();
+    await wait.loader();
 
-        absencelist.click();
-
-        await new Promise(r => setTimeout(r, 2000));
-
-        var tbodyElements = $('[id^="vue-scroll-table"] tbody');
-
-
-        for (var i = 0; i < tbodyElements.length; i++) {
-            var tbody = tbodyElements[i];
-            // Get the row (tr) within this tbody
-            var row = tbody.querySelector('tr');
-            // Check if the row exists (it should, but just in case)
-            if (row) {
-                // Get all cells (td) in the row
-                var cells = row.querySelectorAll('td');
-                // Iterate over the cells to find the target text
-                for (var j = 0; j < cells.length; j++) {
-                    var cell = cells[j];
-                    if (cell.innerHTML.indexOf("Trening") > 0) {
-                        cell.click()
-                    }
-                }
-            }
-        }
-
-        await new Promise(r => setTimeout(r, 1000));
-
-        let innTid = document.getElementById("createAbsence-hours-first");
-        innTid.value = "11:00";
-        let uttid = document.getElementById("createAbsence-hours-last");
-        uttid.value = "12:00";
-
-        innTid.dispatchEvent(inputEvent);
-        uttid.dispatchEvent(inputEvent);
-
-        await new Promise(r => setTimeout(r, 1000));
-
-        document.getElementById("save-absence-form").click();
+    const timeInputs = $$("[data-cy='time-input']");
+    if (timeInputs.length !== 2) {
+        Owl.toast('Kan ikke fylle ut en dag som ikke er over ennå.', 'error');
+        return null;
     }
 
-    async function fillFlekse() {
-        document.getElementById("expand-absence").click();
-        await new Promise(r => setTimeout(r, 1000));
+    setInput(timeInputs[0], startTime);
+    await wait.short();
+    setInput(timeInputs[1], endTime);
+    await wait.short();
 
-        var absencelist = document.getElementById("absence-list")
+    // Good to go, hit it!
+    $(settings.manual ? '#save-registrations-button' : '#calculate-button').click();
+    return { startTime, endTime };
+}
 
-        absencelist.click();
+// Adds an absence of the given type (e.g. "Trening"), optionally limited to a time span.
+async function addAbsence(type, hours) {
+    $('#expand-absence').click();
+    await wait.short();
+    $('#absence-list').click();
+    await wait.long();
 
-        await new Promise(r => setTimeout(r, 2000));
-
-        var tbodyElements = $('[id^="vue-scroll-table"] tbody');
-
-
-        for (var i = 0; i < tbodyElements.length; i++) {
-            var tbody = tbodyElements[i];
-            // Get the row (tr) within this tbody
-            var row = tbody.querySelector('tr');
-            // Check if the row exists (it should, but just in case)
-            if (row) {
-                // Get all cells (td) in the row
-                var cells = row.querySelectorAll('td');
-                // Iterate over the cells to find the target text
-                for (var j = 0; j < cells.length; j++) {
-                    var cell = cells[j];
-                    if (cell.innerHTML.indexOf("Avvikling fleks") > 0) {
-                        cell.click()
-                    }
-                }
-            }
+    for (const tbody of $$('[id^="vue-scroll-table"] tbody')) {
+        const cells = tbody.querySelector('tr')?.querySelectorAll('td') ?? [];
+        for (const cell of cells) {
+            if (cell.innerHTML.includes(type)) cell.click();
         }
-
-        await new Promise(r => setTimeout(r, 1000));
-
-        document.getElementById("save-absence-form").click();
     }
+    await wait.short();
 
-    async function fillMonth() {
-        const playMusic = $(".fyll-mnd").attr("music") === "true";
-        if(playMusic) {
-            $("#audio-player")[0].play();
-        }
+    if (hours) {
+        setInput($('#createAbsence-hours-first'), hours[0]);
+        setInput($('#createAbsence-hours-last'), hours[1]);
+        await wait.short();
+    }
+    $('#save-absence-form').click();
+}
 
+async function fillMonth() {
+    const today = new Date();
+    // Skip days with a correction (purple dot) and days in the future.
+    const days = $$('.day-container:not(.day-outside-month)').filter(
+        (el) => el.getElementsByClassName('day-correction').length === 0 && dayDate(el) < today
+    );
 
-        $(".loader-overlay-main")[0].setAttribute("style", "display: block")
+    let stopped = false;
+    const panel = Owl.progress('Fyller ut måneden', days.length, () => (stopped = true));
+    const music = settings.music ? new Audio(chrome.runtime.getURL('music/elevator.mp3')) : null;
+    if (music) {
+        music.loop = true;
+        music.play();
+    }
+    Owl.say(settings.music ? 'Heisemusikk på, nå fører vi timer! 🎶' : 'Huu-huu! Da setter vi i gang.', 2000);
 
-
-        var dayElements = $(".day-container").not(".day-outside-month");
-        // loop dayElements
-        var today = new Date();
-        for(var i = 0; i < dayElements.length; i++) {
-
-            var dayElement = dayElements[i];
-            var correction = dayElement.getElementsByClassName("day-correction")
-
-            // Skip if day has a correction (purple dot)
-            if(correction.length > 0) {
-                continue;
-            }
-
-            var dayTitle = dayElement.getAttribute("title").substr(0, 10);
-            var [day, month, year] = dayTitle.split('.');
-            var elementDate = new Date(+year, month - 1, +day);
-
-            // Skip if we are in the future
-            if(today <= elementDate) {
-                continue;
-            }
-
-            dayElement.click();
+    let filled = 0;
+    let skipped = 0;
+    try {
+        for (const [i, day] of days.entries()) {
+            if (stopped) break;
+            Owl.flyTo(day);
+            day.click();
 
             // this is unsafe ... might fill out saturdays etc if it is not loaded ...
-            await new Promise(r => setTimeout(r, 1000));
+            await wait.short();
 
-            var dayIsEmpty = $("[data-cy='no-registrations-on-day']").length === 1;
-            var dayIsWorkDay = $("#scheme_length_input_attendance")[0].value === dayLength
-
-
-
+            const dayIsEmpty = $$("[data-cy='no-registrations-on-day']").length === 1;
+            const dayIsWorkDay = $('#scheme_length_input_attendance').value === settings.dayLength;
 
             if (dayIsWorkDay && dayIsEmpty) {
-                console.log("Filling out!");
-                var didFill = await fillOut(true);
-                if(!didFill) {
-                    break;
+                if (!(await fillDay({ quiet: true }))) break;
+                await wait.loader('Beregner fremdeles ...');
+                filled++;
+                Owl.mark(day);
+            } else {
+                console.log('Ikke arbeidsdag, eller finnes registrering for: ' + day.getAttribute('title'));
+                skipped++;
+                Owl.mark(day, true);
+            }
+            panel.update(i + 1, `${filled} ført · ${skipped} hoppet over`);
+        }
+    } finally {
+        music?.pause();
+        panel.end();
+        await Owl.goHome();
+    }
+
+    if (stopped) {
+        Owl.toast(`Stoppet. Førte ${filled} dager.`);
+    } else {
+        Owl.toast(`Ferdig! Førte ${filled} dager, hoppet over ${skipped}.`, 'success', 6000);
+        Owl.say('Huu-huu! Måneden er ført 🎉');
+        await Owl.celebrate();
+    }
+}
+
+// ############## approval ##############
+
+const MONTHS = ['Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember'];
+
+// The month shown in the calendar, from its caption, e.g. "Oktober 2025".
+function getDisplayedMonthYear() {
+    const [monthName, year] = $('.month-table caption').textContent.trim().split(' ');
+    return { year: parseInt(year, 10), monthIndex: MONTHS.indexOf(monthName) };
+}
+
+const getDaysInMonth = (year, monthIndex) => new Date(year, monthIndex + 1, 0).getDate();
+
+// The first half runs from the 1st through the end of the second full week (Monday to Sunday).
+function getFirstHalf() {
+    const { year, monthIndex } = getDisplayedMonthYear();
+    const weekdayOfFirst = new Date(year, monthIndex, 1).getDay(); // 0=Sunday,1=Monday,...6=Saturday
+    const daysInMonth = getDaysInMonth(year, monthIndex);
+    if (weekdayOfFirst === 0) return [1, Math.min(15, daysInMonth)]; // 1 partial day (Sunday) + 2 full weeks
+    const firstMonday = 1 + ((1 - weekdayOfFirst + 7) % 7);
+    return [1, Math.min(firstMonday + 13, daysInMonth)];
+}
+
+async function approveDayRange(startDay, endDay) {
+    const { year, monthIndex } = getDisplayedMonthYear();
+    endDay = Math.min(endDay, getDaysInMonth(year, monthIndex));
+
+    const dayMap = {};
+    for (const el of $$('.day-container:not(.day-outside-month)')) {
+        const date = dayDate(el);
+        if (date.getFullYear() === year && date.getMonth() === monthIndex) dayMap[date.getDate()] = el;
+    }
+
+    let stopped = false;
+    const total = endDay - startDay + 1;
+    const title = `Godkjenner ${startDay}.–${endDay}. ${MONTHS[monthIndex].toLowerCase()}`;
+    const panel = Owl.progress(title, total, () => (stopped = true));
+    let approved = 0;
+    try {
+        for (let dayNum = startDay; dayNum <= endDay && !stopped; dayNum++) {
+            const el = dayMap[dayNum];
+            if (el) {
+                Owl.flyTo(el);
+                el.click();
+                await wait.loader();
+
+                const approveBtn = $('[data-cy="btn-approve-day"]');
+                if (approveBtn && !approveBtn.disabled) {
+                    approveBtn.click();
+                    await wait.loader();
+                    approved++;
+                    Owl.mark(el);
+                } else {
+                    console.log('No approve button or already approved for day ' + dayNum);
+                    Owl.mark(el, true);
                 }
-                await waitAwhileAndListen("Beregner fremdeles ...");
-            } else {
-                console.log("Ikke arbeidsdag, eller finnes registrering for: " + day);
             }
-
+            panel.update(dayNum - startDay + 1, `${approved} godkjent`);
         }
-
-        $(".loader-overlay-main")[0].setAttribute("style", "display: none")
-        if (playMusic) {
-            $("#audio-player")[0].pause();
-        }
-
+    } finally {
+        panel.end();
+        await Owl.goHome();
     }
+    console.log('Approved days ' + startDay + ' to ' + endDay);
+    Owl.toast(`Godkjente ${approved} dager (${startDay}.–${endDay}.).`, 'success');
+    if (!stopped) Owl.hop();
+}
 
-// Helper to get displayed month/year
-    function getDisplayedMonthYear() {
-        var caption = $(".month-table caption").text().trim();
-        var monthsMap = {
-            "Januar":0,"Februar":1,"Mars":2,"April":3,"Mai":4,"Juni":5,
-            "Juli":6,"August":7,"September":8,"Oktober":9,"November":10,"Desember":11
-        };
-        var parts = caption.split(" ");
-        var monthName = parts[0];
-        var year = parseInt(parts[1],10);
-        var monthIndex = monthsMap[monthName];
-        return {year: year, monthIndex: monthIndex};
+// ############## buttons ##############
+
+function makeButton(id, icon, label, title, onClick, variant = '') {
+    const button = document.createElement('button');
+    button.id = id;
+    button.type = 'button';
+    button.title = title;
+    button.className = `mwh-btn ${variant}`;
+    button.innerHTML = `<span class="mwh-icon" aria-hidden="true">${icon}</span>`;
+    button.append(label);
+    button.addEventListener('click', exclusive(onClick));
+    return button;
+}
+
+async function onFillDay() {
+    const times = await fillDay();
+    if (times) {
+        Owl.say(`Ført ${times.startTime}–${times.endTime} ✓`);
+        Owl.hop();
     }
+}
 
-    function getDaysInMonth(year, monthIndex) {
-        return new Date(year, monthIndex+1, 0).getDate();
+async function onTraining() {
+    await addAbsence('Trening', ['11:00', '12:00']);
+    Owl.say('Trening ført 11–12. Heia! 💪');
+    Owl.hop();
+}
+
+async function onFlex() {
+    await addAbsence('Avvikling fleks');
+    Owl.say('Fleksdag ført. Kos deg! 🌴');
+    Owl.hop();
+}
+
+// minWINTID renders its views on the fly, so (re)insert the buttons whenever they're missing.
+function addButtons() {
+    const editingDay = $('#editing-day');
+    if (editingDay && !$('#dagKnapp')) {
+        editingDay.append(
+            makeButton('dagKnapp', '⏱️', 'Fyll ut dag', 'Fyll ut dagen med din vanlige arbeidstid', onFillDay, 'mwh-primary'),
+            makeButton('treneKnapp', '💪', 'Trene?', 'Legg til trening 11:00–12:00', onTraining),
+            makeButton('fleksKnapp', '🌴', 'Fleks?', 'Før hele dagen som avvikling av fleks', onFlex)
+        );
     }
-
-// Approve a range of days in the current month
-    async function approveDayRange(startDay, endDay) {
-        var {year, monthIndex} = getDisplayedMonthYear();
-        var daysInMonth = getDaysInMonth(year, monthIndex);
-        if (endDay > daysInMonth) endDay = daysInMonth;
-
-        var dayElements = $(".day-container").not(".day-outside-month");
-        var dayMap = {};
-        for (var i = 0; i < dayElements.length; i++) {
-            var el = dayElements[i];
-            var dayTitle = el.getAttribute("title").substr(0, 10);
-            var [d,m,y] = dayTitle.split('.');
-            var dayNum = parseInt(d,10);
-            var thisYear = parseInt(y,10);
-            var thisMonth = parseInt(m,10)-1;
-            if (thisYear === year && thisMonth === monthIndex) {
-                dayMap[dayNum] = el;
-            }
-        }
-
-        for (var dayNum = startDay; dayNum <= endDay; dayNum++) {
-            var el = dayMap[dayNum];
-            if (!el) continue;
-            el.click();
-            await waitAwhileAndListen()
-
-            var approveBtn = document.querySelector('[data-cy="btn-approve-day"]');
-            if (approveBtn && !approveBtn.disabled) {
-                approveBtn.click();
-                await waitAwhileAndListen()
-
-            } else {
-                console.log("No approve button or already approved for day " + dayNum);
-            }
-        }
-        console.log("Approved days " + startDay + " to " + endDay);
+    const approval = $('#addApprovalBtn');
+    if (approval && !$('#mndKnapp')) {
+        approval.after(
+            makeButton('mndKnapp', '🦉', 'Auto-fyll mnd', 'Fyll ut alle dager uten registreringer med din vanlige arbeidstid', fillMonth, 'mwh-primary'),
+            makeButton('approveFirst', '✔️', 'Godkjenn halve', 'Godkjenn første halvdel av måneden', () => approveDayRange(...getFirstHalf()))
+        );
     }
+}
 
-    function getApprovalRanges() {
-        var {year, monthIndex} = getDisplayedMonthYear();
-        var firstOfMonth = new Date(year, monthIndex, 1);
-        var weekdayOfFirst = firstOfMonth.getDay(); // 0=Sunday,1=Monday,...6=Saturday
-        var daysInMonth = getDaysInMonth(year, monthIndex);
-
-        // Find first Monday
-        var firstMonday = 1 + ((1 - weekdayOfFirst + 7) % 7);
-        if (firstMonday === 0) firstMonday = 7; // fallback, normally not needed
-
-        let firstRangeStart, firstRangeEnd, secondRangeStart, secondRangeEnd;
-
-        if (weekdayOfFirst === 0) {
-            // Starts on Sunday
-            // "Godkjenn første": days 1–15 (1 partial day (Sunday) + 2 full weeks)
-            // "Godkjenn andre": days 16–end of month
-            firstRangeStart = 1;
-            firstRangeEnd = Math.min(15, daysInMonth);
-            secondRangeStart = 16;
-            secondRangeEnd = daysInMonth;
-
-        } else {
-            // Not Sunday start
-            // "Godkjenn første": from day 1 to (firstMonday+13)
-            // covers partial (if any) plus two full weeks starting from firstMonday
-            firstRangeStart = 1;
-            firstRangeEnd = Math.min(firstMonday+13, daysInMonth);
-
-            // "Godkjenn andre": from (firstMonday+14) to end of month
-            secondRangeStart = firstMonday+14;
-            if (secondRangeStart > daysInMonth) {
-                secondRangeStart = daysInMonth; // If we run out of days, no harm
-            }
-            secondRangeEnd = daysInMonth;
-        }
-
-        return {
-            firstRange: [firstRangeStart, firstRangeEnd],
-            secondRange: [secondRangeStart, secondRangeEnd]
-        };
-    }
-    // ############## helpers end ##############
-
-    await new Promise(r => setTimeout(r, 1000));
-    if (typeof music !== 'undefined' && music === true) {
-        var sound      = document.createElement('audio');
-        sound.id       = 'audio-player';
-        sound.controls = 'controls';
-        sound.loop     = 'true';
-        sound.src      = chrome.runtime.getURL("music/elevator.mp3");
-        sound.type     = 'audio/mpeg';
-        (document.head||document.documentElement).appendChild(sound);
-    }
-
-    $("#editing-day").
-        append('<button style="margin-left:5px" title="Fyll ut dag med din vanlige arbeidstid" id="dagKnapp" class="auto-filler" start-time="'+startTime+'" end-time="'+endTime+'" manual="'+manual+'" randomness="'+randomness+'" type="button"> Fyll ut dag </button>').
-        append('<button style="margin-left:5px" title="Trykk for å legge til trening" id="treneKnapp" class="auto-filler">Trene?</button>').
-        append('<button style="margin-left:5px" title="Trykk for hel fleks dag" id="fleksKnapp" class="auto-filler">Fleks?</button>');
-
-    $("#addApprovalBtn").after('<button title="Fyll ut alle dager uten registreringer med din vanlige abreidstid" id="mndKnapp" music="'+music+'" class="fyll-mnd" type="button"> Auto-fyll mnd </button>');
-    $("#mndKnapp").after('<button title="Godkjenn halve" id="approveFirst" class="approve-weeks" type="button">Godkjenn halve</button>');
-
-
-
-    document.getElementById("dagKnapp").addEventListener("click", fillOut);
-    document.getElementById("treneKnapp").addEventListener("click", fillTrene);
-    document.getElementById("mndKnapp").addEventListener("click", fillMonth);
-    document.getElementById("fleksKnapp").addEventListener("click", fillFlekse);
-
-    document.getElementById("approveFirst").addEventListener("click", async function() {
-        var {firstRange} = getApprovalRanges();
-        await approveDayRange(firstRange[0], firstRange[1]);
-    });
-});
+addButtons();
+setInterval(addButtons, 1000);

@@ -1,40 +1,155 @@
 <!DOCTYPE html>
-<html>
-<head><title>MinWinTidHelper Options</title></head>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<title>MinWinTidHelper – innstillinger</title>
+<style>
+  :root {
+    --brown: #8b5e3c;
+    --brown-dark: #6f4a2f;
+    --cream: #fffaf3;
+    --sand: #f1e6d6;
+    --ink: #2b2118;
+    --muted: #6b5a4a;
+    --orange: #f28c28;
+    --danger: #c92a2a;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-width: 380px;
+    padding: 20px 22px 22px;
+    background: var(--cream);
+    color: var(--ink);
+    font: 14px/1.45 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+  header { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  header img { width: 56px; height: 56px; }
+  h1 { margin: 0; font-size: 20px; }
+  .version { color: var(--muted); font-size: 12.5px; }
+  section {
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(43, 33, 24, .1);
+  }
+  h2 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .times { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .field label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+  .field input {
+    width: 100%;
+    padding: 7px 9px;
+    border: 1.5px solid #d9c8b1;
+    border-radius: 9px;
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+    background: #fff;
+  }
+  .field input:focus { outline: none; border-color: var(--brown); box-shadow: 0 0 0 3px rgba(139, 94, 60, .18); }
+  .field input[aria-invalid="true"] { border-color: var(--danger); }
+  .hint { margin: 10px 0 0; color: var(--muted); font-size: 13px; }
+  .hint.warn { color: var(--danger); }
+  .toggle { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; cursor: pointer; }
+  .toggle + .toggle { border-top: 1px solid var(--sand); }
+  .toggle input { position: absolute; opacity: 0; pointer-events: none; }
+  .switch {
+    flex: none;
+    position: relative;
+    width: 38px;
+    height: 22px;
+    margin-top: 1px;
+    border-radius: 99px;
+    background: #d9c8b1;
+    transition: background .15s;
+  }
+  .switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+    transition: transform .15s;
+  }
+  .toggle input:checked + .switch { background: var(--brown); }
+  .toggle input:checked + .switch::after { transform: translateX(16px); }
+  .toggle input:focus-visible + .switch { outline: 3px solid var(--orange); outline-offset: 2px; }
+  .toggle strong { display: block; font-weight: 600; }
+  .toggle small { color: var(--muted); }
+  footer { display: flex; align-items: center; gap: 12px; }
+  button {
+    border: 0;
+    border-radius: 999px;
+    padding: 9px 22px;
+    background: linear-gradient(135deg, var(--brown), #a8703f);
+    color: #fff;
+    font: 600 14px system-ui, sans-serif;
+    cursor: pointer;
+  }
+  button:hover { background: linear-gradient(135deg, var(--brown-dark), #96633a); }
+  button:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+  #status { font-weight: 600; }
+  #status.error { color: var(--danger); }
+</style>
+</head>
 <body>
 
-<p>Start tid:</p>
-<input id="startTime"></input>
-<br />
-<p>Slutt tid:</p>
-<input id="endTime"></input>
-</br />
-<p>Arb. lengde:</p>
-<input id="dayLength"></input>
-</br />
-<br />
-<label>
-    <input type="checkbox" id="manual">
-    Beregn manuelt (ikke trykk p&aring; beregn ved auto-fylling)
-</label>
-<br />
-<br />
-<label>
-    <input type="checkbox" id="randomness">
-    Trekk eller legg p&aring; mellom 0 og 30 minutter p&aring; valgt tid
-</label>
-<br />
-<br />
-<label>
-    <input type="checkbox" id="music">
-    Spill musikk til auto-fylling av m&aring;ned
-</label>
-<br />
-<br />
-<button id="save">Save</button>
+<header>
+  <img src="icons/icon-128.png" alt="">
+  <div>
+    <h1>MinWinTidHelper</h1>
+    <div class="version">Versjon <span id="version"></span></div>
+  </div>
+</header>
 
+<section>
+  <h2>Arbeidstid</h2>
+  <div class="times">
+    <div class="field">
+      <label for="startTime">Starttid</label>
+      <input id="startTime" placeholder="09:00" inputmode="numeric" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="endTime">Sluttid</label>
+      <input id="endTime" placeholder="16:35" inputmode="numeric" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="dayLength">Arb. lengde</label>
+      <input id="dayLength" placeholder="07:35" inputmode="numeric" autocomplete="off">
+    </div>
+  </div>
+  <p class="hint" id="hint"></p>
+</section>
 
-<br />
+<section>
+  <h2>Valg</h2>
+  <label class="toggle">
+    <input type="checkbox" id="manual"><span class="switch"></span>
+    <span><strong>Beregn manuelt</strong><small>Lagrer uten å trykke på «Beregn» ved auto-fylling. Raskere, men husk å beregne selv.</small></span>
+  </label>
+  <label class="toggle">
+    <input type="checkbox" id="randomness"><span class="switch"></span>
+    <span><strong>Litt variasjon</strong><small>Flytter start og slutt med 1–30 minutter, likt for begge, så lengden er den samme.</small></span>
+  </label>
+  <label class="toggle">
+    <input type="checkbox" id="music"><span class="switch"></span>
+    <span><strong>Heisemusikk</strong><small>Spill musikk mens måneden fylles ut.</small></span>
+  </label>
+  <label class="toggle">
+    <input type="checkbox" id="showOwl"><span class="switch"></span>
+    <span><strong>Vis ugla</strong><small>Ugla holder deg med selskap og flyr rundt mens den fører timer.</small></span>
+  </label>
+</section>
+
+<footer>
+  <button id="save" type="button">Lagre</button>
+  <span id="status" role="status"></span>
+</footer>
 
 <script src="options.js"></script>
 </body>

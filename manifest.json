@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
   "name": "MinWinTidHelper",
-  "version": "1.0.7",
+  "version": "2.0.0",
+  "description": "Fyll ut timer i minWINTID med ett klikk, med en ugle som hjelper deg.",
   "options_ui": {
     "page": "options.html",
     "open_in_tab": false
@@ -19,8 +20,14 @@
       "matches": [
         "https://*.no/Maintenance"
       ],
-      "js": ["jquery.js", "content.js"]
+      "js": ["owl.js", "content.js"],
+      "css": ["styles.css"]
     }
   ],
-  "icons": { "48": "owl-head.png" }
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
 }

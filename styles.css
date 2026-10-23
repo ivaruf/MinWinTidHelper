@@ -1,0 +1,47 @@
+/* Buttons MinWinTidHelper adds to minWINTID. Everything is prefixed mwh- to stay out of the page's way. */
+.mwh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 6px;
+    padding: 6px 12px;
+    border: 1.5px solid #8b5e3c;
+    border-radius: 999px;
+    background: #fffaf3;
+    color: #5a3b22;
+    font: 600 13px/1.2 system-ui, -apple-system, 'Segoe UI', sans-serif;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+
+.mwh-btn:hover {
+    background: #f6ead8;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(90, 59, 34, .2);
+}
+
+.mwh-btn:active {
+    transform: translateY(0) scale(.97);
+    box-shadow: none;
+}
+
+.mwh-btn:focus-visible {
+    outline: 3px solid #f28c28;
+    outline-offset: 2px;
+}
+
+.mwh-btn.mwh-primary {
+    background: linear-gradient(135deg, #8b5e3c, #a8703f);
+    border-color: #6f4a2f;
+    color: #fff;
+}
+
+.mwh-btn.mwh-primary:hover {
+    background: linear-gradient(135deg, #7a5133, #96633a);
+}
+
+.mwh-icon {
+    font-size: 14px;
+    line-height: 1;
+}
