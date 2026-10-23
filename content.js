@@ -451,7 +451,11 @@ function addButtons() {
     const editingDay = $('#editing-day');
     if (editingDay && !$('#dagKnapp')) {
         const like = '#calculate-button';
+        // Our own buttons on a line of their own, below minWINTID's.
+        const lineBreak = document.createElement('span');
+        lineBreak.className = 'mwh-break';
         editingDay.append(
+            lineBreak,
             ...spaced([
                 makeButton({ id: 'dagKnapp', icon: 'clock', label: 'Fyll ut dag', title: 'Fyll ut dagen med din vanlige arbeidstid', onClick: onFillDay, like }),
                 makeButton({ id: 'treneKnapp', icon: 'dumbbell', label: 'Trene?', title: 'Legg til trening 11:00–12:00', onClick: onTraining, like }),
