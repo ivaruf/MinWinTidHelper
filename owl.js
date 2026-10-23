@@ -397,16 +397,69 @@ window.Owl = (() => {
   // ---------- idle chatter ----------
 
   const TIPS = [
-    'Huu-huu! 🦉',
+    // Tips
     'Før fravær, ferie og sykdom før du auto-fyller måneden.',
     'Auto-fyll mnd overskriver aldri noe som allerede er ført.',
-    'Start- og sluttid endrer du i innstillingene til utvidelsen.',
+    'Start- og sluttid endrer du ved å klikke på fuglekassen min.',
     'Helger, helligdager og korte dager hopper jeg over.',
+    'Dager du allerede har godkjent, hopper jeg over. Effektiv ugle!',
+    'Jeg kan føre i dag også: Inn først, så Ut.',
+    'Stopp-knappen virker. Jeg stopper etter dagen jeg holder på med.',
+    'Heisemusikk kan skrus på i innstillingene. Du er herved advart. 🎶',
+    'Syk? Bli i senga. Jeg fører egenmeldingen, du lager te. ☕',
+    'Har du trent i dag? «Trene?» fører det for deg. Selve treningen må du ta selv.',
+    'Hvis minWINTID er treg, venter jeg tålmodig. Ugler er gode på å vente.',
+    'Klikk på fuglekassen for innstillinger. Ikke bank på, jeg sover om dagen.',
+    // Owl facts
     'Ugler ser 270 grader rundt. Timelistene dine ser jeg også.',
+    'Ugler kan ikke bevege øynene. Derfor snur jeg hele hodet når du er sent ute med timelista.',
+    'Ugler flyr nesten lydløst. Jeg fører timer nesten like stille.',
+    'En flokk ugler kalles et parlament. Jeg er et parlament på én.',
+    'Ugler har ikke tenner, så de svelger byttet helt. Jeg svelger hele måneder på en gang.',
+    'Hornugle, kattugle, perleugle … og timeugle. Det er meg.',
+    // Timesheet humour
+    'Huu-huu! 🦉',
+    'Huu-huu er ugle for «husk å godkjenne».',
+    'En god timeliste er som et godt reir: ryddig og uten hull.',
+    'Fleksitid er som mus: best når man har litt i reserve.',
+    'En ugle har aldri glemt å føre timer. Bare så du vet det.',
+    'Det er aldri for sent å føre timer. Men det er ofte for sent å huske hva man gjorde.',
+    'Ingen registreringer denne dagen? Ikke lenge til.',
+    'Kaffe teller dessverre ikke som fravær.',
+    'Fredag ettermiddag er perfekt for «Godkjenn halve». Og for fredagstaco.',
+    'Jeg er ikke en hvilken som helst ugle. Jeg er en timeugle.',
   ];
-  const poke = () => {
+
+  const shuffle = (list) => {
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+    return list;
+  };
+
+  // Draws tips from a shuffled deck, so the owl says every tip once before it repeats any, and never
+  // the same one twice in a row. The deck is kept in chrome.storage.local, so reloading the page
+  // doesn't start it over.
+  const nextTip = async () => {
+    try {
+      const { tipDeck = [], lastTip } = await chrome.storage.local.get(['tipDeck', 'lastTip']);
+      let deck = tipDeck.filter((tip) => TIPS.includes(tip)); // tips we've since removed
+      if (deck.length === 0) {
+        deck = shuffle([...TIPS]);
+        if (deck[0] === lastTip) deck.push(deck.shift());
+      }
+      const tip = deck.shift();
+      await chrome.storage.local.set({ tipDeck: deck, lastTip: tip });
+      return tip;
+    } catch {
+      return pick(TIPS); // storage unavailable, e.g. after the extension was reloaded
+    }
+  };
+
+  const poke = async () => {
     hop();
-    say(pick(TIPS), 3600);
+    say(await nextTip(), 4000);
   };
   owl.addEventListener('click', poke);
   owl.addEventListener('keydown', (e) => {
