@@ -397,10 +397,6 @@ const BIRDHOUSE_SVG = `
   <path d="M5 34 L32 8 L59 34 L54 38 L32 17 L10 38 Z" fill="#8b5e3c"/>
   <path d="M5 34 L32 8 L59 34" fill="none" stroke="#6f4a2f" stroke-width="2" stroke-linejoin="round"/>
   <circle cx="32" cy="37" r="8.5" fill="#3a2a1e"/>
-  <g class="mwh-birdhouse-eyes">
-    <circle cx="28.8" cy="36.5" r="2.2" fill="#ffd166"/>
-    <circle cx="35.2" cy="36.5" r="2.2" fill="#ffd166"/>
-  </g>
   <rect x="28" y="49" width="8" height="3" rx="1.5" fill="#6f4a2f"/>
 </svg>`;
 
@@ -410,8 +406,8 @@ function addBirdhouse() {
     const button = document.createElement('button');
     button.id = 'mwh-birdhouse';
     button.type = 'button';
-    button.title = 'Innstillinger for MinWinTidHelper';
-    button.innerHTML = `${BIRDHOUSE_SVG}<span>Innstillinger</span>`;
+    button.title = 'Åpne innstillingene for minWINTID helper';
+    button.innerHTML = `${BIRDHOUSE_SVG}<span>minWINTID helper innstillinger</span>`;
     button.addEventListener('click', () => chrome.runtime.sendMessage({ type: 'openOptions' }));
     button.addEventListener('mouseenter', () => Owl.say('Det er der jeg bor! 🏠 Klikk for innstillinger.', 2200));
     const row = document.createElement('div');

@@ -149,11 +149,6 @@
     transition: opacity .15s;
 }
 
-#mwh-birdhouse .mwh-birdhouse-eyes {
-    opacity: 0;
-    transition: opacity .2s;
-}
-
 #mwh-birdhouse:hover span,
 #mwh-birdhouse:focus-visible span {
     opacity: 1;
@@ -164,27 +159,13 @@
     animation: mwh-wiggle .6s ease-in-out;
 }
 
-/* Someone's home: eyes light up in the hole and blink. */
-#mwh-birdhouse:hover .mwh-birdhouse-eyes,
-#mwh-birdhouse:focus-visible .mwh-birdhouse-eyes {
-    opacity: 1;
-    animation: mwh-blink 2.4s .6s infinite;
-    transform-box: fill-box;
-    transform-origin: 50% 50%;
-}
-
 #mwh-birdhouse:focus-visible {
     outline: 3px solid #6f4a2f !important;
     outline-offset: 2px;
 }
 
-@keyframes mwh-blink {
-    0%, 90%, 100% { transform: scaleY(1); }
-    95% { transform: scaleY(.1); }
-}
-
 @media (prefers-reduced-motion: reduce) {
-    .mwh-btn, .mwh-btn::after, .mwh-icon, #mwh-birdhouse svg, #mwh-birdhouse .mwh-birdhouse-eyes {
+    .mwh-btn, .mwh-btn::after, .mwh-icon, #mwh-birdhouse svg {
         animation: none !important;
         transition: none !important;
     }
