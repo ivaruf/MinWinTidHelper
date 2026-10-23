@@ -167,19 +167,26 @@ async function fillDay({ quiet = false } = {}) {
     return { startTime, endTime };
 }
 
-// Adds an absence of the given type (e.g. "Trening"), optionally limited to a time span.
+// Adds an absence of the given type (text like "Trening", or a RegExp), optionally limited to a time span.
 async function addAbsence(type, hours) {
     $('#expand-absence').click();
     await wait.short();
     $('#absence-list').click();
     await wait.long();
 
+    const matches = (cell) => (type instanceof RegExp ? type.test(cell.textContent) : cell.innerHTML.includes(type));
+    let found = false;
     for (const tbody of $$('[id^="vue-scroll-table"] tbody')) {
         const cells = tbody.querySelector('tr')?.querySelectorAll('td') ?? [];
         for (const cell of cells) {
-            if (cell.innerHTML.includes(type)) cell.click();
+            if (matches(cell)) {
+                cell.click();
+                found = true;
+            }
         }
     }
+    // Never save the dialog without the absence code we were asked for.
+    if (!found) throw new HelperError(`Fant ikke fraværskoden «${type instanceof RegExp ? type.source : type}» i listen, så jeg la ikke til noe.`);
     await wait.short();
 
     if (hours) {
@@ -328,6 +335,7 @@ const svgIcon = (paths) =>
 const ICONS = {
     clock: svgIcon('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
     sparkles: svgIcon('<path d="M10 3l1.9 5.1L17 10l-5.1 1.9L10 17l-1.9-5.1L3 10l5.1-1.9z"/><path d="M18.5 14l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/>'),
+    thermometer: svgIcon('<path d="M14 14.8V5a2 2 0 0 0-4 0v9.8a4 4 0 1 0 4 0z"/><path d="M12 9v8"/>'),
     dumbbell: svgIcon('<path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/>'),
     sun: svgIcon('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
     checks: svgIcon('<path d="m2 12 4 4 7-8"/><path d="m11 15 1.5 1.5L20 8"/>'),
@@ -379,6 +387,15 @@ async function onFillDay() {
 async function onTraining() {
     await whileBusy('Legger til trening', '11:00–12:00', () => addAbsence('Trening', ['11:00', '12:00']));
     Owl.say('Trening ført 11–12. Heia! 💪');
+    Owl.hop();
+}
+
+// "Egenmelding - Hel dag", whatever dash and spacing the list uses.
+const SICK_DAY = /Egenmelding\s*[-–]\s*Hel dag/i;
+
+async function onSick() {
+    await whileBusy('Legger til egenmelding', 'Egenmelding for hele dagen', () => addAbsence(SICK_DAY));
+    Owl.say('Egenmelding ført for hele dagen. God bedring! 🤒');
     Owl.hop();
 }
 
@@ -437,6 +454,7 @@ function addButtons() {
                 makeButton({ id: 'dagKnapp', icon: 'clock', label: 'Fyll ut dag', title: 'Fyll ut dagen med din vanlige arbeidstid', onClick: onFillDay, like }),
                 makeButton({ id: 'treneKnapp', icon: 'dumbbell', label: 'Trene?', title: 'Legg til trening 11:00–12:00', onClick: onTraining, like }),
                 makeButton({ id: 'fleksKnapp', icon: 'sun', label: 'Fleks?', title: 'Før hele dagen som avvikling av fleks', onClick: onFlex, like }),
+                makeButton({ id: 'sykKnapp', icon: 'thermometer', label: 'Syk?', title: 'Før hele dagen som egenmelding', onClick: onSick, like }),
             ])
         );
     }

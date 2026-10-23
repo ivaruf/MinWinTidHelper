@@ -34,6 +34,8 @@ Normal arbeidsflyt vil være å fylle unntak i løpet av en måned, og så klikk
 
 4: **🌴 Fleks?** fører hele dagen som avvikling av fleks.
 
+**🤒 Syk?** fører hele dagen som egenmelding ("Egenmelding - Hel dag").
+
 5: **✔️ Godkjenn halve** godkjenner første halvdel av måneden: fra den 1. til og med søndagen i den andre hele uken.
 
 Klikk på ugla for et tips.
