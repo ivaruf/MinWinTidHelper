@@ -97,12 +97,14 @@ function dayDate(dayElement) {
 
 let busy = false;
 // Runs one action at a time, so a double click can't start two fills at once.
-const exclusive = (action) => async () => {
+// The button shimmers while its action runs.
+const exclusive = (action, button) => async () => {
     if (busy) {
         Owl.say('Jeg er opptatt, et øyeblikk! 🦉');
         return;
     }
     busy = true;
+    button?.classList.add('mwh-busy');
     try {
         await action();
     } catch (e) {
@@ -110,6 +112,7 @@ const exclusive = (action) => async () => {
         Owl.toast(e instanceof HelperError ? e.message : 'Noe gikk galt. Se konsollen for detaljer.', 'error', 8000);
     } finally {
         busy = false;
+        button?.classList.remove('mwh-busy');
     }
 };
 
@@ -293,17 +296,35 @@ async function approveDayRange(startDay, endDay) {
 
 // ############## buttons ##############
 
-function makeButton(id, icon, label, title, onClick, variant = '') {
+// Line icons in the style of the flat minWINTID buttons; they inherit the text colour.
+const svgIcon = (paths) =>
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+const ICONS = {
+    clock: svgIcon('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
+    calendar: svgIcon('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="m9 15 2 2 4-4"/>'),
+    dumbbell: svgIcon('<path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/>'),
+    sun: svgIcon('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
+    checks: svgIcon('<path d="m2 12 4 4 7-8"/><path d="m11 15 1.5 1.5L20 8"/>'),
+};
+
+// minWINTID styles plain <button>s, plus a class on some (e.g. .approval-button). Copying the
+// classes of the button next to ours gives the same size, font, corners and spacing, also if
+// minWINTID changes its look. styles.css adds the owl colours on top.
+function makeButton({ id, icon, label, title, onClick, like, primary = false }) {
     const button = document.createElement('button');
     button.id = id;
     button.type = 'button';
     button.title = title;
-    button.className = `mwh-btn ${variant}`;
-    button.innerHTML = `<span class="mwh-icon" aria-hidden="true">${icon}</span>`;
+    const pageClasses = [...($(like)?.classList ?? [])].filter((c) => !/active|disabled|focus/i.test(c));
+    button.className = [...pageClasses, 'mwh-btn', primary ? 'mwh-primary' : 'mwh-secondary'].join(' ');
+    button.innerHTML = `<span class="mwh-icon" aria-hidden="true">${ICONS[icon]}</span>`;
     button.append(label);
-    button.addEventListener('click', exclusive(onClick));
+    button.addEventListener('click', exclusive(onClick, button));
     return button;
 }
+
+// minWINTID's own buttons are separated by whitespace in the markup, so add the same between ours.
+const spaced = (buttons) => buttons.flatMap((button) => [' ', button]);
 
 async function onFillDay() {
     const times = await fillDay();
@@ -329,17 +350,23 @@ async function onFlex() {
 function addButtons() {
     const editingDay = $('#editing-day');
     if (editingDay && !$('#dagKnapp')) {
+        const like = '#calculate-button';
         editingDay.append(
-            makeButton('dagKnapp', '⏱️', 'Fyll ut dag', 'Fyll ut dagen med din vanlige arbeidstid', onFillDay, 'mwh-primary'),
-            makeButton('treneKnapp', '💪', 'Trene?', 'Legg til trening 11:00–12:00', onTraining),
-            makeButton('fleksKnapp', '🌴', 'Fleks?', 'Før hele dagen som avvikling av fleks', onFlex)
+            ...spaced([
+                makeButton({ id: 'dagKnapp', icon: 'clock', label: 'Fyll ut dag', title: 'Fyll ut dagen med din vanlige arbeidstid', onClick: onFillDay, like, primary: true }),
+                makeButton({ id: 'treneKnapp', icon: 'dumbbell', label: 'Trene?', title: 'Legg til trening 11:00–12:00', onClick: onTraining, like }),
+                makeButton({ id: 'fleksKnapp', icon: 'sun', label: 'Fleks?', title: 'Før hele dagen som avvikling av fleks', onClick: onFlex, like }),
+            ])
         );
     }
     const approval = $('#addApprovalBtn');
     if (approval && !$('#mndKnapp')) {
+        const like = '#addApprovalBtn';
         approval.after(
-            makeButton('mndKnapp', '🦉', 'Auto-fyll mnd', 'Fyll ut alle dager uten registreringer med din vanlige arbeidstid', fillMonth, 'mwh-primary'),
-            makeButton('approveFirst', '✔️', 'Godkjenn halve', 'Godkjenn første halvdel av måneden', () => approveDayRange(...getFirstHalf()))
+            ...spaced([
+                makeButton({ id: 'mndKnapp', icon: 'calendar', label: 'Auto-fyll mnd', title: 'Fyll ut alle dager uten registreringer med din vanlige arbeidstid', onClick: fillMonth, like, primary: true }),
+                makeButton({ id: 'approveFirst', icon: 'checks', label: 'Godkjenn halve', title: 'Godkjenn første halvdel av måneden', onClick: () => approveDayRange(...getFirstHalf()), like }),
+            ])
         );
     }
 }

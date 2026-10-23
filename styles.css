@@ -1,47 +1,96 @@
-/* Buttons MinWinTidHelper adds to minWINTID. Everything is prefixed mwh- to stay out of the page's way. */
+/* The owl's touch on buttons MinWinTidHelper adds to minWINTID. minWINTID styles plain <button>s
+   (plus .approval-button, copied in content.js), so size, font, corners and spacing come from
+   minWINTID; this only adds colour and motion.
+   !important because minWINTID's own :hover/:active colours are more specific. */
 .mwh-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-left: 6px;
-    padding: 6px 12px;
-    border: 1.5px solid #8b5e3c;
-    border-radius: 999px;
-    background: #fffaf3;
-    color: #5a3b22;
-    font: 600 13px/1.2 system-ui, -apple-system, 'Segoe UI', sans-serif;
-    cursor: pointer;
-    vertical-align: middle;
-    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    --mwh-top: #a06d44;
+    --mwh-bottom: #8b5e3c;
+    --mwh-edge: #6f4a2f;
+    position: relative;
+    overflow: hidden;
+    color: #fff !important;
+    background: linear-gradient(180deg, var(--mwh-top), var(--mwh-bottom)) !important;
+    border-color: var(--mwh-edge) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), 0 1px 2px rgba(43, 33, 24, .25) !important;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, .18);
+    transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+
+.mwh-btn.mwh-secondary {
+    --mwh-top: #85705d;
+    --mwh-bottom: #6e5a49;
+    --mwh-edge: #5a4a3c;
 }
 
 .mwh-btn:hover {
-    background: #f6ead8;
+    filter: brightness(1.06);
     transform: translateY(-1px);
-    box-shadow: 0 3px 8px rgba(90, 59, 34, .2);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 4px 10px rgba(43, 33, 24, .28) !important;
 }
 
 .mwh-btn:active {
-    transform: translateY(0) scale(.97);
-    box-shadow: none;
+    filter: brightness(.95);
+    transform: translateY(0);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, .25) !important;
 }
 
 .mwh-btn:focus-visible {
-    outline: 3px solid #f28c28;
+    outline: 3px solid #f28c28 !important;
     outline-offset: 2px;
 }
 
-.mwh-btn.mwh-primary {
-    background: linear-gradient(135deg, #8b5e3c, #a8703f);
-    border-color: #6f4a2f;
-    color: #fff;
+/* A shine that sweeps across on hover, and keeps sweeping while the action runs. */
+.mwh-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .35) 50%, transparent 65%);
+    transform: translateX(-110%);
+    pointer-events: none;
 }
 
-.mwh-btn.mwh-primary:hover {
-    background: linear-gradient(135deg, #7a5133, #96633a);
+.mwh-btn:hover::after {
+    animation: mwh-shine .7s ease-out;
+}
+
+.mwh-btn.mwh-busy::after {
+    animation: mwh-shine 1.1s ease-in-out infinite;
 }
 
 .mwh-icon {
-    font-size: 14px;
-    line-height: 1;
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    margin-right: .4em;
+    vertical-align: -.2em;
+}
+
+.mwh-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.mwh-btn:hover .mwh-icon {
+    animation: mwh-wiggle .5s ease-in-out;
+}
+
+.mwh-btn.mwh-busy .mwh-icon {
+    animation: mwh-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes mwh-shine {
+    to { transform: translateX(110%); }
+}
+
+@keyframes mwh-wiggle {
+    25% { transform: rotate(-14deg) scale(1.1); }
+    75% { transform: rotate(10deg) scale(1.1); }
+}
+
+@keyframes mwh-pulse {
+    50% { transform: scale(1.18); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mwh-btn, .mwh-btn::after, .mwh-icon { animation: none !important; transition: none !important; }
 }
