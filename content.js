@@ -119,9 +119,13 @@ const exclusive = (action, button) => async () => {
 // ############## actions ##############
 
 // Fills the open day with the user's normal hours. Returns the times used, or null if it couldn't.
+const dayIsEmpty = () => !!$('#registrations')?.innerHTML.includes('Ingen registreringer denne dagen');
+
+// Monday 19 October -> "mandag 19. oktober"
+const dayLabel = (date) => date.toLocaleDateString('nb-NO', { weekday: 'long', day: 'numeric', month: 'long' });
+
 async function fillDay({ quiet = false } = {}) {
-    const registrations = $('#registrations');
-    if (!registrations?.innerHTML.includes('Ingen registreringer denne dagen')) {
+    if (!dayIsEmpty()) {
         if (!quiet) Owl.toast('Kan bare fylle ut en tom dag.', 'error');
         return null;
     }
@@ -193,14 +197,17 @@ async function fillMonth() {
     try {
         for (const [i, day] of days.entries()) {
             if (stopped) break;
+            const label = dayLabel(dayDate(day));
+            panel.setCurrent(`Sjekker ${label}…`);
             Owl.flyTo(day);
             day.click();
             await wait.loader();
 
-            const dayIsEmpty = $$("[data-cy='no-registrations-on-day']").length === 1;
+            const noRegistrations = $$("[data-cy='no-registrations-on-day']").length === 1;
             const dayIsWorkDay = $('#scheme_length_input_attendance').value === settings.dayLength;
 
-            if (dayIsWorkDay && dayIsEmpty) {
+            if (dayIsWorkDay && noRegistrations) {
+                panel.setCurrent(`Fører ${label}…`);
                 if (!(await fillDay({ quiet: true }))) break;
                 await wait.loader();
                 filled++;
@@ -268,6 +275,7 @@ async function approveDayRange(startDay, endDay) {
         for (let dayNum = startDay; dayNum <= endDay && !stopped; dayNum++) {
             const el = dayMap[dayNum];
             if (el) {
+                panel.setCurrent(`Godkjenner ${dayLabel(dayDate(el))}…`);
                 Owl.flyTo(el);
                 el.click();
                 await wait.loader();
@@ -326,8 +334,24 @@ function makeButton({ id, icon, label, title, onClick, like, primary = false }) 
 // minWINTID's own buttons are separated by whitespace in the markup, so add the same between ours.
 const spaced = (buttons) => buttons.flatMap((button) => [' ', button]);
 
+// Shows the busy card until the action and minWINTID's last request are done.
+async function whileBusy(title, text, action) {
+    const card = Owl.busy(title, text);
+    try {
+        const result = await action();
+        await wait.loader();
+        return result;
+    } finally {
+        card.end();
+    }
+}
+
 async function onFillDay() {
-    const times = await fillDay();
+    if (!dayIsEmpty()) {
+        Owl.toast('Kan bare fylle ut en tom dag.', 'error');
+        return;
+    }
+    const times = await whileBusy('Fyller ut dagen', 'Fører din vanlige arbeidstid…', () => fillDay());
     if (times) {
         Owl.say(`Ført ${times.startTime}–${times.endTime} ✓`);
         Owl.hop();
@@ -335,13 +359,13 @@ async function onFillDay() {
 }
 
 async function onTraining() {
-    await addAbsence('Trening', ['11:00', '12:00']);
+    await whileBusy('Legger til trening', '11:00–12:00', () => addAbsence('Trening', ['11:00', '12:00']));
     Owl.say('Trening ført 11–12. Heia! 💪');
     Owl.hop();
 }
 
 async function onFlex() {
-    await addAbsence('Avvikling fleks');
+    await whileBusy('Legger til fleks', 'Hele dagen som avvikling av fleks', () => addAbsence('Avvikling fleks'));
     Owl.say('Fleksdag ført. Kos deg! 🌴');
     Owl.hop();
 }

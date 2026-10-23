@@ -45,7 +45,7 @@ window.Owl = (() => {
 :host { all: initial; }
 .stage { position: fixed; inset: 0; pointer-events: none; z-index: 2147483647;
   font: 14px/1.4 system-ui, -apple-system, 'Segoe UI', sans-serif; color: #2b2118; }
-.shield { position: fixed; inset: 0; background: rgba(43, 33, 24, .14); pointer-events: auto; cursor: progress; }
+.shield { position: fixed; inset: 0; background: rgba(43, 33, 24, .24); pointer-events: auto; cursor: progress; }
 .owl { position: fixed; right: 24px; bottom: 14px; width: 78px; pointer-events: auto; cursor: pointer;
   user-select: none; -webkit-tap-highlight-color: transparent; outline: none; }
 .owl:focus-visible svg { filter: drop-shadow(0 0 4px #f28c28); }
@@ -68,9 +68,16 @@ window.Owl = (() => {
 .toast.success { border-left-color: #2f9e44; }
 .toast.error { border-left-color: #e03131; }
 .toast .icon { font-size: 18px; line-height: 1.2; }
-.panel { position: fixed; right: 20px; bottom: 120px; width: 270px; pointer-events: auto; background: #fff;
-  border-radius: 16px; padding: 14px 16px; box-shadow: 0 10px 34px rgba(43, 33, 24, .22); }
-.panel h3 { margin: 0 0 8px; font-size: 15px; }
+.panel { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(340px, calc(100vw - 32px));
+  pointer-events: auto; background: #fff; border-radius: 18px; padding: 18px 20px;
+  box-shadow: 0 16px 48px rgba(43, 33, 24, .3), 0 2px 6px rgba(43, 33, 24, .12); }
+.head { display: flex; align-items: center; gap: 14px; }
+.panel h3 { margin: 0; font-size: 16px; }
+.current { margin: 2px 0 0; min-height: 1.3em; font-size: 13px; color: #6b5a4a; }
+.spinner { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 4px solid #f1e6d6;
+  border-top-color: #8b5e3c; border-right-color: #f28c28; animation: spin .8s linear infinite; }
+.details { margin-top: 14px; }
+.panel.simple .details { display: none; }
 .bar { height: 10px; border-radius: 99px; background: #f1e6d6; overflow: hidden; }
 .bar > div { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #8b5e3c, #f28c28);
   transition: width .25s ease-out; }
@@ -82,6 +89,7 @@ window.Owl = (() => {
   place-items: center; font-weight: 800; color: #fff; background: #2f9e44; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
 .mark.skip { background: #adb5bd; }
 .feather { position: fixed; width: 8px; height: 14px; margin: -7px 0 0 -4px; border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%; }
+@keyframes spin { to { transform: rotate(360deg); } }
 @keyframes bob { 50% { transform: translateY(-2px) scale(1.015, .985); } }
 @keyframes blink { 0%, 93%, 100% { transform: scaleY(0); } 96% { transform: scaleY(1); } }
 @keyframes tilt { 30% { transform: rotate(-8deg); } 70% { transform: rotate(6deg); } }
@@ -111,7 +119,14 @@ window.Owl = (() => {
   const shield = make('div', 'shield');
   shield.hidden = true;
   const toasts = make('div', 'toasts');
-  const panel = make('div', 'panel', '<h3></h3><div class="bar"><div></div></div><div class="meta"><span></span><span></span></div><button type="button">Stopp</button>');
+  const panel = make(
+    'div',
+    'panel',
+    `<div class="head"><div class="spinner" aria-hidden="true"></div><div><h3></h3><p class="current"></p></div></div>
+     <div class="details"><div class="bar"><div></div></div><div class="meta"><span></span><span></span></div>
+     <button type="button">Stopp</button></div>`
+  );
+  panel.setAttribute('role', 'status');
   panel.hidden = true;
   const owl = make('div', 'owl', OWL_SVG);
   owl.setAttribute('role', 'button');
@@ -252,10 +267,31 @@ window.Owl = (() => {
 
   // ---------- progress panel ----------
 
-  const progress = (title, total, onStop) => {
+  // A card in the middle of the screen over a dimmed page, so it's obvious that work is going on.
+  const current = panel.querySelector('.current');
+  const showPanel = (title, simple) => {
     shield.hidden = false;
     panel.hidden = false;
+    panel.classList.toggle('simple', simple);
     panel.querySelector('h3').textContent = title;
+    current.textContent = '';
+    anim(panel, [{ scale: 0.92, opacity: 0 }, { scale: 1, opacity: 1 }], 220);
+  };
+  const hidePanel = () => {
+    shield.hidden = true;
+    panel.hidden = true;
+  };
+
+  // Spinner and a line of text, for single actions.
+  const busy = (title, text = '') => {
+    showPanel(title, true);
+    current.textContent = text;
+    return { end: hidePanel };
+  };
+
+  // Spinner, progress bar and a Stopp button, for month fill and approval.
+  const progress = (title, total, onStop) => {
+    showPanel(title, false);
     const bar = panel.querySelector('.bar > div');
     const [left, right] = panel.querySelectorAll('.meta span');
     const stop = panel.querySelector('button');
@@ -266,20 +302,13 @@ window.Owl = (() => {
       stop.textContent = 'Stopper etter denne dagen…';
       onStop?.();
     };
-    anim(panel, [{ translate: '0 20px', opacity: 0 }, { translate: '0 0', opacity: 1 }], 260);
     const update = (done, detail = '') => {
       bar.style.width = `${total ? (100 * done) / total : 100}%`;
       left.textContent = `${done} av ${total}`;
       right.textContent = detail;
     };
     update(0);
-    return {
-      update,
-      end: () => {
-        shield.hidden = true;
-        panel.hidden = true;
-      },
-    };
+    return { update, setCurrent: (text) => (current.textContent = text), end: hidePanel };
   };
 
   shield.addEventListener('click', () => say('Vent litt, jeg fører timer! 🦉 (eller trykk Stopp)'));
@@ -315,6 +344,7 @@ window.Owl = (() => {
     celebrate,
     mark,
     progress,
+    busy,
     sleep,
     setVisible: (visible) => (owl.hidden = !visible),
   };
