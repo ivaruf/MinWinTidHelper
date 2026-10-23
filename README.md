@@ -47,7 +47,7 @@ Klikk på ugla for et tips.
 * Du er selv ansvarlig for at det som er ført er riktig, selv om du bruker MinWinTidHelper, det kan være lurt å føre dager med fravær / sykdom / ferie eller avvik før man velger auto-fyll måned, slik at man ikke glemmer dette.
 
 ## Brukervalg
-Høyreklikk på extension-ikonet i chrome og velg "Options" (eller "Alternativer"). Endringer gjelder med en gang, du trenger ikke laste siden på nytt.
+Klikk på fuglekassen 🏠 nederst til venstre på Vedlikehold-siden, eller på MinWinTidHelper-ikonet i Chrome. Innstillingene åpnes i en egen fane, som lukkes når du lagrer. Endringer gjelder med en gang, du trenger ikke laste siden på nytt.
 
 **Arbeidstid:** sett en annen start- og sluttid som stemmer mer med hvordan du vanligvis jobber. Det kan være nøyaktig 07:35 timer, mer eller mindre. Skriv tiden som tt:mm (09:00). Du kan også skrive 900 eller 9:00, så rydder den opp for deg. Under feltene ser du hvor lang dagen blir.
 

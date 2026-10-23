@@ -77,7 +77,12 @@ async function save() {
     await chrome.storage.sync.set(settings);
     status.textContent = 'Lagret ✓';
     status.className = '';
-    setTimeout(() => window.close(), 900);
+    // The options open in a tab of their own (from the birdhouse or the toolbar icon), so close it.
+    setTimeout(async () => {
+        const tab = await chrome.tabs.getCurrent();
+        if (tab) chrome.tabs.remove(tab.id);
+        else window.close();
+    }, 900);
 }
 
 for (const id of TIME_FIELDS) {

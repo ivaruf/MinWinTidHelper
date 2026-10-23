@@ -388,8 +388,41 @@ async function onFlex() {
     Owl.hop();
 }
 
+// The owl's birdhouse, at the bottom of the page: opens the MinWinTidHelper options.
+const BIRDHOUSE_SVG = `
+<svg viewBox="0 0 64 72" aria-hidden="true">
+  <rect x="29.5" y="58" width="5" height="14" fill="#6f4a2f"/>
+  <path d="M13 31 L32 14 L51 31 V60 H13 Z" fill="#ecd9b8" stroke="#c9a97c" stroke-width="1.5"/>
+  <path d="M13 44 H51 M13 52 H51" stroke="#d9c39c" stroke-width="1.2"/>
+  <path d="M5 34 L32 8 L59 34 L54 38 L32 17 L10 38 Z" fill="#8b5e3c"/>
+  <path d="M5 34 L32 8 L59 34" fill="none" stroke="#6f4a2f" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="32" cy="37" r="8.5" fill="#3a2a1e"/>
+  <g class="mwh-birdhouse-eyes">
+    <circle cx="28.8" cy="36.5" r="2.2" fill="#ffd166"/>
+    <circle cx="35.2" cy="36.5" r="2.2" fill="#ffd166"/>
+  </g>
+  <rect x="28" y="49" width="8" height="3" rx="1.5" fill="#6f4a2f"/>
+</svg>`;
+
+function addBirdhouse() {
+    const main = $('#contentbody');
+    if (!main || $('#mwh-birdhouse')) return;
+    const button = document.createElement('button');
+    button.id = 'mwh-birdhouse';
+    button.type = 'button';
+    button.title = 'Innstillinger for MinWinTidHelper';
+    button.innerHTML = `${BIRDHOUSE_SVG}<span>Innstillinger</span>`;
+    button.addEventListener('click', () => chrome.runtime.sendMessage({ type: 'openOptions' }));
+    button.addEventListener('mouseenter', () => Owl.say('Det er der jeg bor! 🏠 Klikk for innstillinger.', 2200));
+    const row = document.createElement('div');
+    row.className = 'mwh-birdhouse-row';
+    row.append(button);
+    main.append(row);
+}
+
 // minWINTID renders its views on the fly, so (re)insert the buttons whenever they're missing.
 function addButtons() {
+    addBirdhouse();
     const editingDay = $('#editing-day');
     if (editingDay && !$('#dagKnapp')) {
         const like = '#calculate-button';

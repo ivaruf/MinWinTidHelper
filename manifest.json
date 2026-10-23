@@ -5,7 +5,17 @@
   "description": "Fyll ut timer i minWINTID med ett klikk, med en ugle som hjelper deg.",
   "options_ui": {
     "page": "options.html",
-    "open_in_tab": false
+    "open_in_tab": true
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "MinWinTidHelper-innstillinger",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
   },
   "permissions": [
     "storage"
