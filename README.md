@@ -19,6 +19,19 @@ Nytt i 2.0: en ugle 🦉 som bor i en fuglekasse nederst på siden (eller venter
 
 **Oppdatere:** hent siste versjon, klikk på oppdater-ikonet på MinWinTidHelper i `chrome://extensions`, og last minWINTID-siden på nytt.
 
+### Microsoft Edge
+Som i Chrome: gå til `edge://extensions`, skru på "Utviklermodus" og klikk "Last inn upakket".
+
+### Firefox
+1. Gå til `about:debugging#/runtime/this-firefox`
+2. Klikk "Last inn midlertidig tillegg…" og velg `manifest.json` i mappen
+3. Ferdig!
+
+Midlertidige tillegg forsvinner når Firefox startes på nytt. For en varig installasjon må tillegget signeres av Mozilla (gratis): last opp en zip av mappen som "On your own" på addons.mozilla.org, og del `.xpi`-filen du får tilbake. Krever Firefox 128 eller nyere.
+
+### Safari
+Støttes ikke ennå. Safari krever at utvidelsen pakkes inn i en Mac-app med Xcode, og signeres med en Apple Developer-konto for å kunne deles.
+
 ## Bruk
 *Nye knapper kommer frem i Vedlikeholds vinduet:*
 

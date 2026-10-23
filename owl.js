@@ -124,13 +124,16 @@ window.Owl = (() => {
 
   const host = document.createElement('minwintid-owl');
   const shadow = host.attachShadow({ mode: 'open' });
+  // A constructed stylesheet isn't blocked by the page's CSP. Firefox content scripts haven't always
+  // been able to adopt one, so fall back to a <style> element if it throws or doesn't stick.
   try {
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(CSS);
     shadow.adoptedStyleSheets = [sheet];
   } catch {
-    shadow.append(make('style', null, CSS));
+    // handled below
   }
+  if (shadow.adoptedStyleSheets?.length !== 1) shadow.append(make('style', null, CSS));
 
   const stage = make('div', 'stage');
   const shield = make('div', 'shield');
