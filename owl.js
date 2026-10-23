@@ -44,11 +44,11 @@ window.Owl = (() => {
   const CSS = `
 :host { all: initial; }
 .stage { position: fixed; inset: 0; pointer-events: none; z-index: 2147483647;
-  font: 14px/1.4 system-ui, -apple-system, 'Segoe UI', sans-serif; color: #2b2118; }
-.shield { position: fixed; inset: 0; background: rgba(43, 33, 24, .24); pointer-events: auto; cursor: progress; }
+  font: 14px/1.4 system-ui, -apple-system, 'Segoe UI', sans-serif; color: #1f2d30; }
+.shield { position: fixed; inset: 0; background: rgba(16, 42, 46, .24); pointer-events: auto; cursor: progress; }
 .owl { position: fixed; right: 24px; bottom: 14px; width: 78px; pointer-events: auto; cursor: pointer;
   user-select: none; -webkit-tap-highlight-color: transparent; outline: none; }
-.owl:focus-visible svg { filter: drop-shadow(0 0 4px #f28c28); }
+.owl:focus-visible svg { filter: drop-shadow(0 0 4px #14b8a6); }
 .owl svg { display: block; width: 100%; height: auto; overflow: visible; transform-origin: 50% 100%; }
 .bird { transform-box: fill-box; transform-origin: 50% 100%; animation: bob 3.2s ease-in-out infinite; }
 .lids { transform-box: fill-box; transform-origin: 50% 0; transform: scaleY(0); animation: blink 4.5s infinite; }
@@ -58,33 +58,33 @@ window.Owl = (() => {
 .flying .bird { animation: none; }
 .owl:not(.flying):hover .bird { animation: tilt .7s ease-in-out; }
 .speech { position: absolute; bottom: calc(100% + 6px); right: 40%; max-width: 260px; width: max-content;
-  background: #fff; border: 2px solid #2b2118; border-radius: 14px; padding: 7px 11px; font-weight: 650;
-  box-shadow: 3px 3px 0 #2b2118; transform-origin: 90% 100%; }
-.speech::after { content: ''; position: absolute; right: 14px; top: 100%; border: 7px solid transparent; border-top-color: #2b2118; }
+  background: #fff; border: 2px solid #1f2d30; border-radius: 14px; padding: 7px 11px; font-weight: 650;
+  box-shadow: 3px 3px 0 #1f2d30; transform-origin: 90% 100%; }
+.speech::after { content: ''; position: absolute; right: 14px; top: 100%; border: 7px solid transparent; border-top-color: #1f2d30; }
 .toasts { position: fixed; top: 16px; right: 16px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
 .toast { pointer-events: auto; display: flex; gap: 10px; align-items: flex-start; max-width: 340px; background: #fff;
-  border-radius: 12px; padding: 10px 14px; border-left: 5px solid #8b5e3c;
-  box-shadow: 0 6px 24px rgba(43, 33, 24, .18), 0 1px 3px rgba(43, 33, 24, .12); }
+  border-radius: 12px; padding: 10px 14px; border-left: 5px solid #0e7c7b;
+  box-shadow: 0 6px 24px rgba(16, 42, 46, .18), 0 1px 3px rgba(16, 42, 46, .12); }
 .toast.success { border-left-color: #2f9e44; }
 .toast.error { border-left-color: #e03131; }
 .toast .icon { font-size: 18px; line-height: 1.2; }
 .panel { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(340px, calc(100vw - 32px));
   pointer-events: auto; background: #fff; border-radius: 18px; padding: 18px 20px;
-  box-shadow: 0 16px 48px rgba(43, 33, 24, .3), 0 2px 6px rgba(43, 33, 24, .12); }
+  box-shadow: 0 16px 48px rgba(16, 42, 46, .3), 0 2px 6px rgba(16, 42, 46, .12); }
 .head { display: flex; align-items: center; gap: 14px; }
 .panel h3 { margin: 0; font-size: 16px; }
-.current { margin: 2px 0 0; min-height: 1.3em; font-size: 13px; color: #6b5a4a; }
-.spinner { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 4px solid #f1e6d6;
-  border-top-color: #8b5e3c; border-right-color: #f28c28; animation: spin .8s linear infinite; }
+.current { margin: 2px 0 0; min-height: 1.3em; font-size: 13px; color: #5b6b6e; }
+.spinner { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 4px solid #d9f0ee;
+  border-top-color: #0a6c6e; border-right-color: #14b8a6; animation: spin .8s linear infinite; }
 .details { margin-top: 14px; }
 .panel.simple .details { display: none; }
-.bar { height: 10px; border-radius: 99px; background: #f1e6d6; overflow: hidden; }
-.bar > div { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #8b5e3c, #f28c28);
+.bar { height: 10px; border-radius: 99px; background: #d9f0ee; overflow: hidden; }
+.bar > div { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #0a6c6e, #3ddbc6);
   transition: width .25s ease-out; }
-.meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12.5px; color: #6b5a4a; }
+.meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12.5px; color: #5b6b6e; }
 .panel button { margin-top: 10px; width: 100%; border: 0; border-radius: 10px; padding: 7px; font: inherit; font-weight: 650;
-  background: #f1e6d6; color: #2b2118; cursor: pointer; }
-.panel button:hover { background: #e8d6bd; }
+  background: #e0f2f1; color: #0a4f50; cursor: pointer; }
+.panel button:hover { background: #c9e9e6; }
 .mark { position: fixed; margin: -14px 0 0 -14px; width: 28px; height: 28px; border-radius: 50%; display: grid;
   place-items: center; font-weight: 800; color: #fff; background: #2f9e44; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
 .mark.skip { background: #adb5bd; }

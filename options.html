@@ -5,13 +5,15 @@
 <title>MinWinTidHelper – innstillinger</title>
 <style>
   :root {
-    --brown: #8b5e3c;
-    --brown-dark: #6f4a2f;
-    --cream: #fffaf3;
-    --sand: #f1e6d6;
-    --ink: #2b2118;
-    --muted: #6b5a4a;
-    --orange: #f28c28;
+    --teal: #0e7c7b;
+    --teal-dark: #0a6c6e;
+    --aqua: #3ddbc6;
+    --aqua-dark: #14b8a6;
+    --aqua-ink: #073b3a;
+    --bg: #f3f8f8;
+    --line: #d9f0ee;
+    --ink: #1f2d30;
+    --muted: #5b6b6e;
     --danger: #c92a2a;
     color-scheme: light;
   }
@@ -20,7 +22,7 @@
     margin: 0;
     min-width: 380px;
     padding: 20px 22px 22px;
-    background: var(--cream);
+    background: var(--bg);
     color: var(--ink);
     font: 14px/1.45 system-ui, -apple-system, 'Segoe UI', sans-serif;
   }
@@ -33,7 +35,7 @@
     border-radius: 14px;
     padding: 14px 16px;
     margin-bottom: 14px;
-    box-shadow: 0 1px 3px rgba(43, 33, 24, .1);
+    box-shadow: 0 1px 3px rgba(16, 42, 46, .1);
   }
   h2 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
   .times { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -41,18 +43,18 @@
   .field input {
     width: 100%;
     padding: 7px 9px;
-    border: 1.5px solid #d9c8b1;
+    border: 1.5px solid #c5dcdc;
     border-radius: 9px;
     font: inherit;
     font-variant-numeric: tabular-nums;
     background: #fff;
   }
-  .field input:focus { outline: none; border-color: var(--brown); box-shadow: 0 0 0 3px rgba(139, 94, 60, .18); }
+  .field input:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(14, 124, 123, .2); }
   .field input[aria-invalid="true"] { border-color: var(--danger); }
   .hint { margin: 10px 0 0; color: var(--muted); font-size: 13px; }
   .hint.warn { color: var(--danger); }
   .toggle { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; cursor: pointer; }
-  .toggle + .toggle { border-top: 1px solid var(--sand); }
+  .toggle + .toggle { border-top: 1px solid var(--line); }
   .toggle input { position: absolute; opacity: 0; pointer-events: none; }
   .switch {
     flex: none;
@@ -61,7 +63,7 @@
     height: 22px;
     margin-top: 1px;
     border-radius: 99px;
-    background: #d9c8b1;
+    background: #c5d3d4;
     transition: background .15s;
   }
   .switch::after {
@@ -76,9 +78,9 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, .25);
     transition: transform .15s;
   }
-  .toggle input:checked + .switch { background: var(--brown); }
+  .toggle input:checked + .switch { background: var(--teal); }
   .toggle input:checked + .switch::after { transform: translateX(16px); }
-  .toggle input:focus-visible + .switch { outline: 3px solid var(--orange); outline-offset: 2px; }
+  .toggle input:focus-visible + .switch { outline: 3px solid var(--aqua-dark); outline-offset: 2px; }
   .toggle strong { display: block; font-weight: 600; }
   .toggle small { color: var(--muted); }
   footer { display: flex; align-items: center; gap: 12px; }
@@ -86,13 +88,15 @@
     border: 0;
     border-radius: 999px;
     padding: 9px 22px;
-    background: linear-gradient(135deg, var(--brown), #a8703f);
-    color: #fff;
-    font: 600 14px system-ui, sans-serif;
+    background: linear-gradient(180deg, var(--aqua), var(--aqua-dark));
+    color: var(--aqua-ink);
+    font: 700 14px system-ui, sans-serif;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 3px 10px rgba(20, 184, 166, .45);
     cursor: pointer;
+    transition: transform .12s ease, filter .12s ease;
   }
-  button:hover { background: linear-gradient(135deg, var(--brown-dark), #96633a); }
-  button:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+  button:hover { filter: brightness(1.05); transform: translateY(-1px); }
+  button:focus-visible { outline: 3px solid var(--teal-dark); outline-offset: 2px; }
   #status { font-weight: 600; }
   #status.error { color: var(--danger); }
 </style>
