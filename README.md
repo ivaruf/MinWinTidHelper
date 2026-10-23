@@ -25,7 +25,7 @@ Nytt i 2.0: en ugle 🦉 som holder deg med selskap nede i høyre hjørne. Den f
 1: **⏱️ Fyll ut dag** ved siden av "Beregn" knappen vil automatisk fylle inn 09:00 til 16:35 for denne dagen, eller start slutt tid man har satt i brukervalg.
 
 2: **🦉 Auto-fyll mnd** over kalendervisningen: fyll ut 09:00 til 16:35 (eller start slutt tid man har satt i brukervalg) for alle dager som ikke har noen registreringer og som forventer 07:35 timers arbeidstid. Helger, helligdager og "halve" dager blir ikke fylt ut automatisk.
-Du kan auto-fylle så mange ganger du ønsker i løpet av en måned, da verdier aldri blir overskrevet, og den stopper når den kommer til dagen i dag (minWINTID tillater ikke å føre frem i tid).
+Du kan auto-fylle så mange ganger du ønsker i løpet av en måned, da verdier aldri blir overskrevet, og den fyller ut til og med i dag, men aldri dager frem i tid.
 Mens den jobber, legger siden seg bak et kort midt på skjermen som viser hvilken dag den er på og hvor langt den har kommet. Trykk **Stopp** for å avbryte etter dagen den holder på med. "Fyll ut dag", "Trene?" og "Fleks?" viser et lite kort med en spinner mens minWINTID jobber.
 
 Normal arbeidsflyt vil være å fylle unntak i løpet av en måned, og så klikke en gang på "Auto-fyll mnd" når måned er over.

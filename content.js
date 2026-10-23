@@ -133,19 +133,30 @@ async function fillDay({ quiet = false } = {}) {
     let { startTime, endTime } = settings;
     if (settings.randomness) [startTime, endTime] = shuffleTimes(startTime, endTime);
 
+    const timeInputs = () => $$("[data-cy='time-input']");
     $('#addInOut').click();
     await wait.loader();
-    await until(() => $$("[data-cy='time-input']").length === 2, 500);
+    await until(() => timeInputs().length > 0, 500);
 
-    const timeInputs = $$("[data-cy='time-input']");
-    if (timeInputs.length !== 2) {
-        Owl.toast('Kan ikke fylle ut en dag som ikke er over ennå.', 'error');
+    // A day that isn't over yet only gets an "Inn" field. Filling it in and clicking Inn/Ut again
+    // adds the "Ut" field.
+    if (timeInputs().length === 1) {
+        setInput(timeInputs()[0], startTime);
+        await sleep(50);
+        $('#addInOut').click();
+        await wait.loader();
+        await until(() => timeInputs().length === 2, 500);
+    }
+
+    const [inTime, outTime] = timeInputs();
+    if (timeInputs().length !== 2) {
+        Owl.toast('Fant ikke feltene for inn og ut, så jeg fylte ikke ut dagen.', 'error');
         return null;
     }
 
-    setInput(timeInputs[0], startTime);
+    setInput(inTime, startTime);
     await sleep(50);
-    setInput(timeInputs[1], endTime);
+    setInput(outTime, endTime);
     await sleep(50);
 
     // Good to go, hit it!
