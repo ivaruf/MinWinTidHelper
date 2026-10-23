@@ -46,7 +46,7 @@ window.Owl = (() => {
 .stage { position: fixed; inset: 0; pointer-events: none; z-index: 2147483647;
   font: 14px/1.4 system-ui, -apple-system, 'Segoe UI', sans-serif; color: #2b2118; }
 .shield { position: fixed; inset: 0; background: rgba(43, 33, 24, .24); pointer-events: auto; cursor: progress; }
-.owl { position: fixed; right: 24px; bottom: 14px; width: 78px; pointer-events: auto; cursor: pointer;
+.owl { position: fixed; left: 20px; top: 0; width: 78px; pointer-events: auto; cursor: pointer;
   user-select: none; -webkit-tap-highlight-color: transparent; outline: none; }
 .owl:focus-visible svg { filter: drop-shadow(0 0 4px #f28c28); }
 .owl svg { display: block; width: 100%; height: auto; overflow: visible; transform-origin: 50% 100%; }
@@ -61,6 +61,9 @@ window.Owl = (() => {
   background: #fff; border: 2px solid #2b2118; border-radius: 14px; padding: 7px 11px; font-weight: 650;
   box-shadow: 3px 3px 0 #2b2118; transform-origin: 90% 100%; }
 .speech::after { content: ''; position: absolute; right: 14px; top: 100%; border: 7px solid transparent; border-top-color: #2b2118; }
+.on-left .speech { right: auto; left: 40%; transform-origin: 10% 100%; }
+.on-left .speech::after { right: auto; left: 14px; }
+.perched svg > ellipse { display: none; } /* no floor shadow on a branch */
 .toasts { position: fixed; top: 16px; right: 16px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
 .toast { pointer-events: auto; display: flex; gap: 10px; align-items: flex-start; max-width: 340px; background: #fff;
   border-radius: 12px; padding: 10px 14px; border-left: 5px solid #8b5e3c;
@@ -213,6 +216,61 @@ window.Owl = (() => {
 
   const goHome = () => moveTo({ x: 0, y: 0 }, 600);
 
+  // ---------- home: on the birdhouse branch, or else the bottom-left corner ----------
+
+  let perch = null; // element marking where the owl's feet go
+  let homeMode = null;
+  const FEET = 0.92; // the feet are at 92 % of the owl's height
+
+  const homeSpot = () => {
+    const w = owl.offsetWidth;
+    const h = owl.offsetHeight;
+    const r = perch?.isConnected && perch.getClientRects().length ? perch.getBoundingClientRect() : null;
+    // Only sit on the branch when the whole birdhouse (the perch's parent) and the owl's head are in
+    // view; otherwise wait in the corner, so the owl never ends up half off screen.
+    const house = r && perch.parentElement.getBoundingClientRect();
+    if (r && r.top - h * FEET >= 0 && house.bottom <= innerHeight) {
+      return { mode: 'perch', left: r.left - w / 2, top: r.top - h * FEET };
+    }
+    return { mode: 'corner', left: 20, top: innerHeight - h - 14 };
+  };
+
+  const placeHome = () => {
+    if (owl.hidden) return;
+    const spot = homeSpot();
+    const before = owl.getBoundingClientRect();
+    owl.style.left = `${spot.left}px`;
+    owl.style.top = `${spot.top}px`;
+    owl.classList.toggle('on-left', spot.left + owl.offsetWidth / 2 < innerWidth / 2);
+    owl.classList.toggle('perched', spot.mode === 'perch');
+    const switched = homeMode && spot.mode !== homeMode;
+    homeMode = spot.mode;
+    // Between the corner and the birdhouse: fly over instead of jumping.
+    if (switched && !owl.classList.contains('flying')) {
+      pos = { x: before.left - spot.left, y: before.top - spot.top };
+      moveTo({ x: 0, y: 0 }, 700);
+    }
+  };
+
+  let placeQueued = false;
+  const schedulePlace = () => {
+    if (placeQueued) return;
+    placeQueued = true;
+    requestAnimationFrame(() => {
+      placeQueued = false;
+      placeHome();
+    });
+  };
+  addEventListener('scroll', schedulePlace, { capture: true, passive: true });
+  addEventListener('resize', schedulePlace);
+  setInterval(placeHome, 500); // minWINTID's layout shifts as it loads days
+  placeHome();
+
+  const setPerch = (el) => {
+    perch = el;
+    placeHome();
+  };
+
   const hop = () =>
     anim(
       svg,
@@ -357,6 +415,10 @@ window.Owl = (() => {
     progress,
     busy,
     sleep,
-    setVisible: (visible) => (owl.hidden = !visible),
+    setPerch,
+    setVisible: (visible) => {
+      owl.hidden = !visible;
+      placeHome();
+    },
   };
 })();

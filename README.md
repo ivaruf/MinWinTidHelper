@@ -5,7 +5,7 @@ En chrome extension til å forenkle føring av timer i minWINTID. Denne er til d
 
 Dager hvor du ikke jobber din normale arbeidstid må du fylle ut manuelt som tidligere.
 
-Nytt i 2.0: en ugle 🦉 som holder deg med selskap nede i høyre hjørne. Den flyr fra dag til dag mens den fører timer, viser hvor langt den har kommet, og sier fra når noe går galt.
+Nytt i 2.0: en ugle 🦉 som bor i en fuglekasse nederst på siden (eller venter nede i hjørnet når fuglekassen ikke er synlig). Den flyr fra dag til dag mens den fører timer, viser hvor langt den har kommet, og sier fra når noe går galt.
 
 ## Installasjon
 1. Klon eller last ned git repository (bruk eventuelt direktelink: https://cutt.ly/minwintidhelper)

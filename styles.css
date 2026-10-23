@@ -117,7 +117,7 @@
 /* The owl's birdhouse at the bottom of the page, which opens the options. minWINTID styles every
    <button> as a solid block, so undo that here. */
 .mwh-birdhouse-row {
-    padding: 4px 16px 12px;
+    padding: 34px 16px 12px; /* room for the owl's head above the branch */
 }
 
 #mwh-birdhouse {
@@ -136,26 +136,46 @@
     cursor: pointer;
 }
 
-#mwh-birdhouse svg {
-    width: 44px;
-    height: 50px;
-    overflow: visible;
-    transform-origin: 50% 100%;
+.mwh-birdhouse-art {
+    position: relative;
+    display: inline-block;
 }
 
-#mwh-birdhouse span {
-    padding-bottom: 6px;
+#mwh-birdhouse svg {
+    display: block;
+    width: 105px;
+    height: 84px;
+    overflow: visible;
+}
+
+/* Where the owl's feet go on the branch (in svg units: x 96, y 57 of 120 x 96). */
+.mwh-perch {
+    position: absolute;
+    left: 84px;
+    top: 50px;
+    width: 1px;
+    height: 1px;
+}
+
+.mwh-birdhouse-label {
+    margin-left: 26px; /* clear of the owl on the branch */
+    padding-bottom: 14px;
     opacity: .8;
     transition: opacity .15s;
 }
 
-#mwh-birdhouse:hover span,
-#mwh-birdhouse:focus-visible span {
+#mwh-birdhouse:hover .mwh-birdhouse-label,
+#mwh-birdhouse:focus-visible .mwh-birdhouse-label {
     opacity: 1;
     text-decoration: underline;
 }
 
-#mwh-birdhouse:hover svg {
+.mwh-house {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+}
+
+#mwh-birdhouse:hover .mwh-house {
     animation: mwh-wiggle .6s ease-in-out;
 }
 
@@ -165,7 +185,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .mwh-btn, .mwh-btn::after, .mwh-icon, #mwh-birdhouse svg {
+    .mwh-btn, .mwh-btn::after, .mwh-icon, .mwh-house {
         animation: none !important;
         transition: none !important;
     }

@@ -388,16 +388,22 @@ async function onFlex() {
     Owl.hop();
 }
 
-// The owl's birdhouse, at the bottom of the page: opens the MinWinTidHelper options.
+// The owl's birdhouse, at the bottom of the page: opens the MinWinTidHelper options. The owl
+// lives on the branch sticking out of its side (see .mwh-perch and Owl.setPerch).
 const BIRDHOUSE_SVG = `
-<svg viewBox="0 0 64 72" aria-hidden="true">
-  <rect x="29.5" y="58" width="5" height="14" fill="#6f4a2f"/>
-  <path d="M13 31 L32 14 L51 31 V60 H13 Z" fill="#ecd9b8" stroke="#c9a97c" stroke-width="1.5"/>
-  <path d="M13 44 H51 M13 52 H51" stroke="#d9c39c" stroke-width="1.2"/>
-  <path d="M5 34 L32 8 L59 34 L54 38 L32 17 L10 38 Z" fill="#8b5e3c"/>
-  <path d="M5 34 L32 8 L59 34" fill="none" stroke="#6f4a2f" stroke-width="2" stroke-linejoin="round"/>
-  <circle cx="32" cy="37" r="8.5" fill="#3a2a1e"/>
-  <rect x="28" y="49" width="8" height="3" rx="1.5" fill="#6f4a2f"/>
+<svg viewBox="0 0 120 96" aria-hidden="true">
+  <path d="M52 64 Q82 61 114 57" fill="none" stroke="#6f4a2f" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M100 59 q4 -9 13 -12" fill="none" stroke="#6f4a2f" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M112 47 q9 -4 8 -12 q-9 2 -8 12z" fill="#7aa65a"/>
+  <g class="mwh-house">
+    <rect x="29" y="80" width="6" height="16" fill="#6f4a2f"/>
+    <path d="M8 34 L32 14 L56 34 V80 H8 Z" fill="#ecd9b8" stroke="#c9a97c" stroke-width="1.5"/>
+    <path d="M8 52 H56 M8 66 H56" stroke="#d9c39c" stroke-width="1.2"/>
+    <path d="M0 37 L32 8 L64 37 L59 41 L32 17 L5 41 Z" fill="#8b5e3c"/>
+    <path d="M0 37 L32 8 L64 37" fill="none" stroke="#6f4a2f" stroke-width="2.2" stroke-linejoin="round"/>
+    <circle cx="32" cy="44" r="9" fill="#3a2a1e"/>
+    <rect x="27" y="57" width="10" height="3.2" rx="1.6" fill="#6f4a2f"/>
+  </g>
 </svg>`;
 
 function addBirdhouse() {
@@ -407,13 +413,14 @@ function addBirdhouse() {
     button.id = 'mwh-birdhouse';
     button.type = 'button';
     button.title = 'Åpne innstillingene for minWINTID helper';
-    button.innerHTML = `${BIRDHOUSE_SVG}<span>minWINTID helper innstillinger</span>`;
+    button.innerHTML = `<span class="mwh-birdhouse-art">${BIRDHOUSE_SVG}<span class="mwh-perch"></span></span><span class="mwh-birdhouse-label">minWINTID helper innstillinger</span>`;
     button.addEventListener('click', () => chrome.runtime.sendMessage({ type: 'openOptions' }));
     button.addEventListener('mouseenter', () => Owl.say('Det er der jeg bor! 🏠 Klikk for innstillinger.', 2200));
     const row = document.createElement('div');
     row.className = 'mwh-birdhouse-row';
     row.append(button);
     main.append(row);
+    Owl.setPerch(button.querySelector('.mwh-perch'));
 }
 
 // minWINTID renders its views on the fly, so (re)insert the buttons whenever they're missing.
