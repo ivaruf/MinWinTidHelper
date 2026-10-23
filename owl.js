@@ -44,11 +44,11 @@ window.Owl = (() => {
   const CSS = `
 :host { all: initial; }
 .stage { position: fixed; inset: 0; pointer-events: none; z-index: 2147483647;
-  font: 14px/1.4 system-ui, -apple-system, 'Segoe UI', sans-serif; color: #1f2d30; }
-.shield { position: fixed; inset: 0; background: rgba(16, 42, 46, .24); pointer-events: auto; cursor: progress; }
+  font: 14px/1.4 system-ui, -apple-system, 'Segoe UI', sans-serif; color: #2b2118; }
+.shield { position: fixed; inset: 0; background: rgba(43, 33, 24, .24); pointer-events: auto; cursor: progress; }
 .owl { position: fixed; right: 24px; bottom: 14px; width: 78px; pointer-events: auto; cursor: pointer;
   user-select: none; -webkit-tap-highlight-color: transparent; outline: none; }
-.owl:focus-visible svg { filter: drop-shadow(0 0 4px #14b8a6); }
+.owl:focus-visible svg { filter: drop-shadow(0 0 4px #f28c28); }
 .owl svg { display: block; width: 100%; height: auto; overflow: visible; transform-origin: 50% 100%; }
 .bird { transform-box: fill-box; transform-origin: 50% 100%; animation: bob 3.2s ease-in-out infinite; }
 .lids { transform-box: fill-box; transform-origin: 50% 0; transform: scaleY(0); animation: blink 4.5s infinite; }
@@ -58,38 +58,49 @@ window.Owl = (() => {
 .flying .bird { animation: none; }
 .owl:not(.flying):hover .bird { animation: tilt .7s ease-in-out; }
 .speech { position: absolute; bottom: calc(100% + 6px); right: 40%; max-width: 260px; width: max-content;
-  background: #fff; border: 2px solid #1f2d30; border-radius: 14px; padding: 7px 11px; font-weight: 650;
-  box-shadow: 3px 3px 0 #1f2d30; transform-origin: 90% 100%; }
-.speech::after { content: ''; position: absolute; right: 14px; top: 100%; border: 7px solid transparent; border-top-color: #1f2d30; }
+  background: #fff; border: 2px solid #2b2118; border-radius: 14px; padding: 7px 11px; font-weight: 650;
+  box-shadow: 3px 3px 0 #2b2118; transform-origin: 90% 100%; }
+.speech::after { content: ''; position: absolute; right: 14px; top: 100%; border: 7px solid transparent; border-top-color: #2b2118; }
 .toasts { position: fixed; top: 16px; right: 16px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
 .toast { pointer-events: auto; display: flex; gap: 10px; align-items: flex-start; max-width: 340px; background: #fff;
-  border-radius: 12px; padding: 10px 14px; border-left: 5px solid #0e7c7b;
-  box-shadow: 0 6px 24px rgba(16, 42, 46, .18), 0 1px 3px rgba(16, 42, 46, .12); }
+  border-radius: 12px; padding: 10px 14px; border-left: 5px solid #8b5e3c;
+  box-shadow: 0 6px 24px rgba(43, 33, 24, .18), 0 1px 3px rgba(43, 33, 24, .12); }
 .toast.success { border-left-color: #2f9e44; }
 .toast.error { border-left-color: #e03131; }
 .toast .icon { font-size: 18px; line-height: 1.2; }
 .panel { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(340px, calc(100vw - 32px));
   pointer-events: auto; background: #fff; border-radius: 18px; padding: 18px 20px;
-  box-shadow: 0 16px 48px rgba(16, 42, 46, .3), 0 2px 6px rgba(16, 42, 46, .12); }
+  box-shadow: 0 16px 48px rgba(43, 33, 24, .3), 0 2px 6px rgba(43, 33, 24, .12); }
 .head { display: flex; align-items: center; gap: 14px; }
 .panel h3 { margin: 0; font-size: 16px; }
-.current { margin: 2px 0 0; min-height: 1.3em; font-size: 13px; color: #5b6b6e; }
-.spinner { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 4px solid #d9f0ee;
-  border-top-color: #0a6c6e; border-right-color: #14b8a6; animation: spin .8s linear infinite; }
+.current { margin: 2px 0 0; min-height: 1.3em; font-size: 13px; color: #6b5a4a; }
+.spinner { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 4px solid #f1e6d6;
+  border-top-color: #8b5e3c; border-right-color: #f28c28; animation: spin .8s linear infinite; }
 .details { margin-top: 14px; }
 .panel.simple .details { display: none; }
-.bar { height: 10px; border-radius: 99px; background: #d9f0ee; overflow: hidden; }
-.bar > div { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #0a6c6e, #3ddbc6);
+.bar { height: 10px; border-radius: 99px; background: #f1e6d6; overflow: hidden; }
+.bar > div { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #8b5e3c, #f28c28);
   transition: width .25s ease-out; }
-.meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12.5px; color: #5b6b6e; }
-.panel button { margin-top: 10px; width: 100%; border: 0; border-radius: 10px; padding: 7px; font: inherit; font-weight: 650;
-  background: #e0f2f1; color: #0a4f50; cursor: pointer; }
-.panel button:hover { background: #c9e9e6; }
+.meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12.5px; color: #6b5a4a; }
+/* Same look as the buttons in the page (styles.css): minWINTID's shape in owl brown. */
+.panel button { position: relative; overflow: hidden; margin-top: 12px; width: 100%; padding: .55rem 1rem;
+  border: 1px solid #6f4a2f; border-radius: 3px; font: inherit; font-weight: 650; color: #fff; cursor: pointer;
+  background: linear-gradient(180deg, #a06d44, #8b5e3c); text-shadow: 0 1px 0 rgba(0, 0, 0, .15);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), 0 1px 2px rgba(0, 0, 0, .2);
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease; }
+.panel button:hover { filter: brightness(1.07); transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 5px 14px rgba(139, 94, 60, .35); }
+.panel button:active { filter: brightness(.95); transform: none; box-shadow: inset 0 2px 4px rgba(0, 0, 0, .25); }
+.panel button:disabled { filter: grayscale(.6) brightness(1.1); cursor: progress; transform: none; }
+.panel button::after { content: ''; position: absolute; inset: 0; pointer-events: none; transform: translateX(-110%);
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .35) 50%, transparent 65%); }
+.panel button:hover::after { animation: shine .7s ease-out; }
 .mark { position: fixed; margin: -14px 0 0 -14px; width: 28px; height: 28px; border-radius: 50%; display: grid;
   place-items: center; font-weight: 800; color: #fff; background: #2f9e44; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
 .mark.skip { background: #adb5bd; }
 .feather { position: fixed; width: 8px; height: 14px; margin: -7px 0 0 -4px; border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%; }
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes shine { to { transform: translateX(110%); } }
 @keyframes bob { 50% { transform: translateY(-2px) scale(1.015, .985); } }
 @keyframes blink { 0%, 93%, 100% { transform: scaleY(0); } 96% { transform: scaleY(1); } }
 @keyframes tilt { 30% { transform: rotate(-8deg); } 70% { transform: rotate(6deg); } }
