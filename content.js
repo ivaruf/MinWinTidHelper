@@ -89,6 +89,9 @@ function shuffleTimes(startTime, endTime) {
     return [toTime(toMinutes(startTime) + shift), toTime(toMinutes(endTime) + shift)];
 }
 
+// The calendar day's title lists its statuses, e.g. "19.10.2026\nKorreksjon\nDagen er godkjent av ansatt".
+const isApproved = (dayElement) => /godkjent av ansatt/i.test(dayElement.getAttribute('title'));
+
 // The day's date, from the title attribute "dd.mm.yyyy ...".
 function dayDate(dayElement) {
     const [day, month, year] = dayElement.getAttribute('title').substr(0, 10).split('.');
@@ -189,9 +192,10 @@ async function addAbsence(type, hours) {
 
 async function fillMonth() {
     const today = new Date();
-    // Skip days with a correction (purple dot) and days in the future.
+    // Skip days with a correction (purple dot), days you've already approved (they're done) and
+    // days in the future.
     const days = $$('.day-container:not(.day-outside-month)').filter(
-        (el) => el.getElementsByClassName('day-correction').length === 0 && dayDate(el) < today
+        (el) => el.getElementsByClassName('day-correction').length === 0 && !isApproved(el) && dayDate(el) < today
     );
 
     let stopped = false;
@@ -271,38 +275,41 @@ async function approveDayRange(startDay, endDay) {
     const { year, monthIndex } = getDisplayedMonthYear();
     endDay = Math.min(endDay, getDaysInMonth(year, monthIndex));
 
-    const dayMap = {};
-    for (const el of $$('.day-container:not(.day-outside-month)')) {
+    // Days in the range you haven't approved yet. The calendar knows, so no need to click the rest.
+    const days = $$('.day-container:not(.day-outside-month)').filter((el) => {
         const date = dayDate(el);
-        if (date.getFullYear() === year && date.getMonth() === monthIndex) dayMap[date.getDate()] = el;
+        return date.getFullYear() === year && date.getMonth() === monthIndex &&
+            date.getDate() >= startDay && date.getDate() <= endDay && !isApproved(el);
+    });
+    if (days.length === 0) {
+        Owl.say(`Første halvdel (${startDay}.–${endDay}.) er allerede godkjent ✓`);
+        Owl.hop();
+        return;
     }
 
     let stopped = false;
-    const total = endDay - startDay + 1;
     const title = `Godkjenner ${startDay}.–${endDay}. ${MONTHS[monthIndex].toLowerCase()}`;
-    const panel = Owl.progress(title, total, () => (stopped = true));
+    const panel = Owl.progress(title, days.length, () => (stopped = true));
     let approved = 0;
     try {
-        for (let dayNum = startDay; dayNum <= endDay && !stopped; dayNum++) {
-            const el = dayMap[dayNum];
-            if (el) {
-                panel.setCurrent(`Godkjenner ${dayLabel(dayDate(el))}…`);
-                Owl.flyTo(el);
-                el.click();
-                await wait.loader();
+        for (const [i, el] of days.entries()) {
+            if (stopped) break;
+            panel.setCurrent(`Godkjenner ${dayLabel(dayDate(el))}…`);
+            Owl.flyTo(el);
+            el.click();
+            await wait.loader();
 
-                const approveBtn = $('[data-cy="btn-approve-day"]');
-                if (approveBtn && !approveBtn.disabled) {
-                    approveBtn.click();
-                    await wait.loader();
-                    approved++;
-                    Owl.mark(el);
-                } else {
-                    console.log('No approve button or already approved for day ' + dayNum);
-                    Owl.mark(el, true);
-                }
+            const approveBtn = $('[data-cy="btn-approve-day"]');
+            if (approveBtn && !approveBtn.disabled) {
+                approveBtn.click();
+                await wait.loader();
+                approved++;
+                Owl.mark(el);
+            } else {
+                console.log('No approve button or already approved for ' + el.getAttribute('title'));
+                Owl.mark(el, true);
             }
-            panel.update(dayNum - startDay + 1, `${approved} godkjent`);
+            panel.update(i + 1, `${approved} godkjent`);
         }
     } finally {
         panel.end();
