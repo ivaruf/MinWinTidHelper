@@ -64,6 +64,9 @@ window.Owl = (() => {
 .on-left .speech { right: auto; left: 40%; transform-origin: 10% 100%; }
 .on-left .speech::after { right: auto; left: 14px; }
 .perched svg > ellipse { display: none; } /* no floor shadow on a branch */
+/* On the branch the bubble goes beside the owl, so it doesn't cover the month buttons above. */
+.perched .speech { bottom: auto; top: 4px; left: calc(100% + 12px); right: auto; transform-origin: 0 30%; }
+.perched .speech::after { top: 14px; left: -14px; right: auto; border-top-color: transparent; border-right-color: #2b2118; }
 .toasts { position: fixed; top: 16px; right: 16px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
 .toast { pointer-events: auto; display: flex; gap: 10px; align-items: flex-start; max-width: 340px; background: #fff;
   border-radius: 12px; padding: 10px 14px; border-left: 5px solid #8b5e3c;
