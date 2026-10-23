@@ -424,8 +424,10 @@ const BIRDHOUSE_SVG = `
 </svg>`;
 
 function addBirdhouse() {
-    const main = $('#contentbody');
-    if (!main || $('#mwh-birdhouse')) return;
+    // Right under the month buttons in the calendar column: high up, and the day panel on the right
+    // can't push it down. Falls back to the bottom of the page.
+    const home = $('#calendar .datepicker-container-calendar') ?? $('#contentbody');
+    if (!home || $('#mwh-birdhouse')) return;
     const button = document.createElement('button');
     button.id = 'mwh-birdhouse';
     button.type = 'button';
@@ -440,7 +442,7 @@ function addBirdhouse() {
     const row = document.createElement('div');
     row.className = 'mwh-birdhouse-row';
     row.append(button, version);
-    main.append(row);
+    home.append(row);
     Owl.setPerch(button.querySelector('.mwh-perch'));
 }
 
