@@ -3,11 +3,11 @@
    minWINTID; this only adds colour and motion.
    !important because minWINTID's own :hover/:active colours are more specific. */
 .mwh-btn {
-    --mwh-top: #2884cb;
-    --mwh-bottom: #1a62a6;
-    --mwh-edge: #165690;
+    --mwh-top: #11908e;
+    --mwh-bottom: #0a6c6e;
+    --mwh-edge: #085c5e;
     --mwh-text: #fff;
-    --mwh-glow: rgba(26, 98, 166, .35);
+    --mwh-glow: rgba(10, 108, 110, .35);
     position: relative;
     overflow: hidden;
     color: var(--mwh-text) !important;
@@ -20,13 +20,11 @@
 
 /* "Auto-fyll mnd": the call to action. Bold, its own colour, a soft glow and a shine every few seconds. */
 .mwh-btn.mwh-cta {
-    --mwh-top: #ffc53d;
-    --mwh-bottom: #ff9f1a;
-    --mwh-edge: #e58a00;
-    --mwh-text: #3b2300;
-    --mwh-glow: rgba(255, 159, 26, .55);
+    --mwh-top: #8b5cf6;
+    --mwh-bottom: #5b3fe0;
+    --mwh-edge: #4c35c4;
+    --mwh-glow: rgba(91, 63, 224, .45);
     font-weight: 700 !important;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, .35);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 3px 12px var(--mwh-glow) !important;
 }
 
@@ -47,7 +45,7 @@
 }
 
 .mwh-btn:focus-visible {
-    outline: 3px solid #1a62a6 !important;
+    outline: 3px solid #5b3fe0 !important;
     outline-offset: 2px;
 }
 
