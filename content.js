@@ -309,7 +309,7 @@ const svgIcon = (paths) =>
     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
 const ICONS = {
     clock: svgIcon('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
-    calendar: svgIcon('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="m9 15 2 2 4-4"/>'),
+    sparkles: svgIcon('<path d="M10 3l1.9 5.1L17 10l-5.1 1.9L10 17l-1.9-5.1L3 10l5.1-1.9z"/><path d="M18.5 14l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/>'),
     dumbbell: svgIcon('<path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/>'),
     sun: svgIcon('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
     checks: svgIcon('<path d="m2 12 4 4 7-8"/><path d="m11 15 1.5 1.5L20 8"/>'),
@@ -318,13 +318,13 @@ const ICONS = {
 // minWINTID styles plain <button>s, plus a class on some (e.g. .approval-button). Copying the
 // classes of the button next to ours gives the same size, font, corners and spacing, also if
 // minWINTID changes its look. styles.css adds the owl colours on top.
-function makeButton({ id, icon, label, title, onClick, like, primary = false }) {
+function makeButton({ id, icon, label, title, onClick, like, cta = false }) {
     const button = document.createElement('button');
     button.id = id;
     button.type = 'button';
     button.title = title;
     const pageClasses = [...($(like)?.classList ?? [])].filter((c) => !/active|disabled|focus/i.test(c));
-    button.className = [...pageClasses, 'mwh-btn', primary ? 'mwh-primary' : 'mwh-secondary'].join(' ');
+    button.className = [...pageClasses, 'mwh-btn', ...(cta ? ['mwh-cta'] : [])].join(' ');
     button.innerHTML = `<span class="mwh-icon" aria-hidden="true">${ICONS[icon]}</span>`;
     button.append(label);
     button.addEventListener('click', exclusive(onClick, button));
@@ -377,7 +377,7 @@ function addButtons() {
         const like = '#calculate-button';
         editingDay.append(
             ...spaced([
-                makeButton({ id: 'dagKnapp', icon: 'clock', label: 'Fyll ut dag', title: 'Fyll ut dagen med din vanlige arbeidstid', onClick: onFillDay, like, primary: true }),
+                makeButton({ id: 'dagKnapp', icon: 'clock', label: 'Fyll ut dag', title: 'Fyll ut dagen med din vanlige arbeidstid', onClick: onFillDay, like }),
                 makeButton({ id: 'treneKnapp', icon: 'dumbbell', label: 'Trene?', title: 'Legg til trening 11:00–12:00', onClick: onTraining, like }),
                 makeButton({ id: 'fleksKnapp', icon: 'sun', label: 'Fleks?', title: 'Før hele dagen som avvikling av fleks', onClick: onFlex, like }),
             ])
@@ -388,7 +388,7 @@ function addButtons() {
         const like = '#addApprovalBtn';
         approval.after(
             ...spaced([
-                makeButton({ id: 'mndKnapp', icon: 'calendar', label: 'Auto-fyll mnd', title: 'Fyll ut alle dager uten registreringer med din vanlige arbeidstid', onClick: fillMonth, like, primary: true }),
+                makeButton({ id: 'mndKnapp', icon: 'sparkles', label: 'Auto-fyll mnd', title: 'Fyll ut alle dager uten registreringer med din vanlige arbeidstid', onClick: fillMonth, like, cta: true }),
                 makeButton({ id: 'approveFirst', icon: 'checks', label: 'Godkjenn halve', title: 'Godkjenn første halvdel av måneden', onClick: () => approveDayRange(...getFirstHalf()), like }),
             ])
         );
