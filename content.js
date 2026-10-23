@@ -30,17 +30,43 @@ const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const isVisible = (el) => !!el && (el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0);
 
-// TODO(speed): these fixed waits are the same as in 1.x. Replace them with checks for the
-// actual page state once we know what minWINTID renders while loading.
+// An error whose message is meant for the user.
+class HelperError extends Error {}
+
+// Polls until check() is truthy. Returns false if it timed out.
+async function until(check, timeout) {
+    const end = performance.now() + timeout;
+    while (performance.now() < end) {
+        if (check()) return true;
+        await sleep(10);
+    }
+    return false;
+}
+
+const loaderVisible = () => isVisible($('.loader-overlay-main'));
+
 const wait = {
+    // Measured in minWINTID: after clicking a day, "Inn/Ut" or "Beregn", the loader shows within
+    // ~20 ms and hides once the data is in (0.1-1.5 s). Until then the page can show stale data,
+    // e.g. a Saturday briefly looks like an empty 07:35 workday. So wait for a full loader cycle.
+    // If the loader never shows, we've waited 1.5 s, longer than the old fixed wait.
+    // The server can be slow, so there's no fixed limit on the load itself: we wait until the
+    // loader has stayed hidden for 150 ms (it may flicker between requests), and give up only
+    // after a minute, so we never act on a half-loaded day.
+    async loader() {
+        if (!(await until(loaderVisible, 1500))) return;
+        const end = performance.now() + 60000;
+        let hiddenSince = null;
+        while (performance.now() < end) {
+            if (loaderVisible()) hiddenSince = null;
+            else if (performance.now() - (hiddenSince ??= performance.now()) >= 150) return;
+            await sleep(10);
+        }
+        throw new HelperError('minWINTID svarer ikke. Lasteren forsvant ikke på ett minutt, så jeg stoppet.');
+    },
+    // Absence flow: not measured yet, so these stay the fixed waits from 1.x.
     short: () => sleep(1000),
     long: () => sleep(2000),
-    async loader(message = 'laster') {
-        do {
-            await sleep(1000);
-            console.log(message);
-        } while (isVisible($('.loader-overlay-main')));
-    },
 };
 
 function setInput(input, value) {
@@ -81,7 +107,7 @@ const exclusive = (action) => async () => {
         await action();
     } catch (e) {
         console.error('[MinWinTidHelper]', e);
-        Owl.toast('Noe gikk galt. Se konsollen for detaljer.', 'error');
+        Owl.toast(e instanceof HelperError ? e.message : 'Noe gikk galt. Se konsollen for detaljer.', 'error', 8000);
     } finally {
         busy = false;
     }
@@ -100,9 +126,9 @@ async function fillDay({ quiet = false } = {}) {
     let { startTime, endTime } = settings;
     if (settings.randomness) [startTime, endTime] = shuffleTimes(startTime, endTime);
 
-    await wait.short();
     $('#addInOut').click();
     await wait.loader();
+    await until(() => $$("[data-cy='time-input']").length === 2, 500);
 
     const timeInputs = $$("[data-cy='time-input']");
     if (timeInputs.length !== 2) {
@@ -111,9 +137,9 @@ async function fillDay({ quiet = false } = {}) {
     }
 
     setInput(timeInputs[0], startTime);
-    await wait.short();
+    await sleep(50);
     setInput(timeInputs[1], endTime);
-    await wait.short();
+    await sleep(50);
 
     // Good to go, hit it!
     $(settings.manual ? '#save-registrations-button' : '#calculate-button').click();
@@ -166,16 +192,14 @@ async function fillMonth() {
             if (stopped) break;
             Owl.flyTo(day);
             day.click();
-
-            // this is unsafe ... might fill out saturdays etc if it is not loaded ...
-            await wait.short();
+            await wait.loader();
 
             const dayIsEmpty = $$("[data-cy='no-registrations-on-day']").length === 1;
             const dayIsWorkDay = $('#scheme_length_input_attendance').value === settings.dayLength;
 
             if (dayIsWorkDay && dayIsEmpty) {
                 if (!(await fillDay({ quiet: true }))) break;
-                await wait.loader('Beregner fremdeles ...');
+                await wait.loader();
                 filled++;
                 Owl.mark(day);
             } else {
