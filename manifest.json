@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MinWinTidHelper",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Fyll ut timer i minWINTID med ett klikk, med en ugle som hjelper deg.",
   "options_ui": {
     "page": "options.html",

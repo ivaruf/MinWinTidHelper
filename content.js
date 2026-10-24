@@ -1,5 +1,5 @@
 // content.js  - IMPORTANT _ KEEP VERSION ON LINE 2 UP TO DATE
-let version = "2.2.1";
+let version = "2.2.2";
 
 // Adds the MinWinTidHelper buttons to the minWINTID Maintenance page. The owl lives in owl.js.
 const DEFAULTS = {
