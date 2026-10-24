@@ -456,7 +456,7 @@ async function checkVersion(line, force) {
         if (force) Owl.say('Fikk ikke sjekket akkurat nå. Last siden på nytt og prøv igjen.', 3500);
         return;
     }
-    const { current, latest, updateAvailable, failed } = result;
+    const { current, latest, summary, updateAvailable, failed } = result;
     line.classList.toggle('mwh-update', updateAvailable);
     line.textContent = updateAvailable
         ? `WinTidHelper versjon ${current} · ${latest} er ute!`
@@ -466,7 +466,8 @@ async function checkVersion(line, force) {
         // On load, announce each new version once; on click, always.
         const { announcedVersion } = await chrome.storage.local.get('announcedVersion');
         if (force || announcedVersion !== latest) {
-            Owl.say(`Huu-huu! Versjon ${latest} er ute 🎉 Last ned, pakk ut over den gamle mappen og trykk ↻ på utvidelsen.`, 12000, [
+            const news = summary ? ` ${/[.!?]$/.test(summary) ? summary : `${summary}.`}` : '';
+            Owl.say(`Huu-huu! Versjon ${latest} er ute 🎉${news} Last ned, pakk ut over den gamle mappen og trykk ↻ på utvidelsen.`, 12000, [
                 { text: `Last ned ${latest}`, href: result.downloadUrl },
                 { text: 'Hva er nytt?', href: result.changesUrl },
             ]);

@@ -19,9 +19,7 @@ Nytt i 2.0: en ugle 🦉 som bor i en fuglekasse nederst på siden (eller venter
 
 **Oppdatere:** hent siste versjon, klikk på oppdater-ikonet på MinWinTidHelper i `chrome://extensions`, og last minWINTID-siden på nytt.
 
-**Ny versjon?** Ugla sjekker GitHub når siden lastes (maks hver 6. time). Er det kommet en ny versjon, vrikker versjonslinjen ved fuglekassen på seg, og ugla sier ifra én gang med lenke til nedlasting og hva som er nytt. Klikk på versjonslinjen for å sjekke med en gang.
-
-*For utviklere:* husk å øke `version` i `manifest.json` (og linje 2 i `content.js`) når du pusher noe nytt, ellers merker ingen at det er en ny versjon.
+**Ny versjon?** Ugla sjekker siste release på GitHub når siden lastes (maks hver 6. time). Er det kommet en ny versjon, vrikker versjonslinjen ved fuglekassen på seg, og ugla sier ifra én gang med hva som er nytt og lenke til nedlasting. Klikk på versjonslinjen for å sjekke med en gang.
 
 ### Microsoft Edge
 Som i Chrome: gå til `edge://extensions`, skru på "Utviklermodus" og klikk "Last inn upakket".
@@ -29,7 +27,7 @@ Som i Chrome: gå til `edge://extensions`, skru på "Utviklermodus" og klikk "La
 ### Firefox
 Firefox trenger noen ekstra felt i manifestet som Chrome advarer om, så Firefox-versjonen bygges med et lite skript:
 
-1. Kjør `python3 tools/build-firefox.py` i mappen. Det lager `dist/firefox/` og en zip i `dist/`
+1. Kjør `python3 tools/build.py` i mappen. Det lager `dist/firefox/` og zip-filer i `dist/` (eller last ned Firefox-zipen fra siste release)
 2. Gå til `about:debugging#/runtime/this-firefox`
 3. Klikk "Last inn midlertidig tillegg…" og velg `dist/firefox/manifest.json`
 4. Ferdig!
@@ -82,6 +80,14 @@ Hvis du har arbeidsdager kortere enn 07:35 timer, f.eks. hvis du jobber 80%, 06:
 **Heisemusikk:** spill Muzak (heis-musikk) mens måneds-fylling pågår =)
 
 **Vis ugla:** skru av hvis du vil jobbe i fred. Knappene og fremdriften fungerer som før.
+
+## Slippe en ny versjon
+1. Push endringene til `master`
+2. Gå til **Actions → Ny versjon → Run workflow** på GitHub
+3. Velg hvor mye versjonen skal økes (`minor`, `patch`, `major`, eller `behold` for å slippe versjonen som står i `manifest.json` nå), og skriv gjerne én setning om hva som er nytt. Den setningen leser ugla opp
+4. Workflowen oppdaterer versjonen i `manifest.json` og `content.js`, lager taggen `vX.Y.Z`, bygger zip-filer for Chrome/Edge og Firefox, og publiserer en release med dem
+
+Først når releasen er publisert, sier ugla ifra til alle. Vanlige push til `master` merkes ikke.
 
 ## Musikk
 "Local Forecast - Elevator" av Kevin MacLeod, lisensiert under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Se `music/Read.txt`.

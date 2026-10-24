@@ -1,0 +1,69 @@
+# Ny versjon: bumps the version, tags it, builds the zips and publishes a GitHub release.
+# Run it from the Actions tab ("Ny versjon" -> "Run workflow"). The owl in minWINTID reads the
+# latest release, so publishing one is what tells everyone there's something new.
+name: Ny versjon
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Hvilken del av versjonen skal økes? (behold = slipp versjonen som står i manifest.json nå)'
+        type: choice
+        options: [minor, patch, major, behold]
+        default: minor
+      notes:
+        description: 'Kort om hva som er nytt. Ugla leser dette opp, så hold det til én setning.'
+        type: string
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Bump version
+        id: version
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: python3 tools/bump-version.py "$BUMP" >> "$GITHUB_OUTPUT"
+
+      - name: Commit, tag and push
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if git rev-parse -q --verify "refs/tags/v$VERSION" > /dev/null; then
+            echo "::error::v$VERSION finnes allerede. Velg en annen bump."
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git diff --quiet || git commit -am "Versjon $VERSION"
+          git tag "v$VERSION"
+          git push --atomic origin HEAD:refs/heads/master "refs/tags/v$VERSION"
+
+      - name: Build zips
+        run: python3 tools/build.py
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          NOTES: ${{ inputs.notes }}
+        run: |
+          gh release create "v$VERSION" \
+            "dist/minwintidhelper-chrome-$VERSION.zip" \
+            "dist/minwintidhelper-firefox-$VERSION.zip" \
+            --title "Versjon $VERSION" \
+            --notes "$NOTES" \
+            --generate-notes
