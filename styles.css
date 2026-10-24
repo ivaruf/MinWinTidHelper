@@ -167,27 +167,13 @@
     height: 1px;
 }
 
-/* Like minWINTID's "WinTid versjon ..." footer; click it to check for a newer version. */
+/* Like minWINTID's "WinTid versjon ..." footer. */
 .mwh-version {
     display: inline-block;
     margin-left: 34px; /* clear of the owl on the branch */
     margin-bottom: 2px; /* level with the bottom of the birdhouse, below the owl's speech bubble */
     color: #6f4a2f;
     font-size: .95rem;
-    cursor: pointer;
-    transform-origin: 0 50%;
-}
-
-.mwh-version:hover,
-.mwh-version:focus-visible {
-    text-decoration: underline;
-    outline: none;
-}
-
-/* A newer version is out: orange. */
-.mwh-version.mwh-update {
-    color: #d9731a;
-    font-weight: 700;
 }
 
 .mwh-house {

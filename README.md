@@ -17,9 +17,7 @@ Nytt i 2.0: en ugle 🦉 som bor i en fuglekasse nederst på siden (eller venter
 7. Velg mappen du klonet / pakket ut
 8. Ferdig!
 
-**Oppdatere:** hent siste versjon, klikk på oppdater-ikonet på MinWinTidHelper i `chrome://extensions`, og last minWINTID-siden på nytt.
-
-**Ny versjon?** Ugla sjekker siste release på GitHub når siden lastes (maks hver 6. time). Er det kommet en ny versjon, vrikker versjonslinjen ved fuglekassen på seg, og ugla sier ifra én gang med hva som er nytt og lenke til nedlasting. Klikk på versjonslinjen for å sjekke med en gang.
+**Oppdatere:** hent siste versjon, klikk på oppdater-ikonet på MinWinTidHelper i `chrome://extensions`, og last minWINTID-siden på nytt. Installert fra Chrome Web Store oppdateres den av seg selv.
 
 ### Microsoft Edge
 Som i Chrome: gå til `edge://extensions`, skru på "Utviklermodus" og klikk "Last inn upakket".
@@ -84,10 +82,9 @@ Hvis du har arbeidsdager kortere enn 07:35 timer, f.eks. hvis du jobber 80%, 06:
 ## Slippe en ny versjon
 1. Push endringene til `master`
 2. Gå til **Actions → Ny versjon → Run workflow** på GitHub
-3. Velg hvor mye versjonen skal økes (`patch` for småfikser, `minor` for nye ting, `major` for store endringer), og skriv gjerne én setning om hva som er nytt. Den setningen leser ugla opp
+3. Velg hvor mye versjonen skal økes (`patch` for småfikser, `minor` for nye ting, `major` for store endringer), og skriv gjerne én setning om hva som er nytt
 4. Workflowen oppdaterer versjonen i `manifest.json` og `content.js`, lager taggen `vX.Y.Z`, bygger zip-filer for Chrome/Edge og Firefox, og publiserer en release med dem
-
-Først når releasen er publisert, sier ugla ifra til alle. Vanlige push til `master` merkes ikke.
+5. Last opp Chrome-zipen i Chrome Web Store sitt utviklerdashbord. Brukerne får den automatisk når den er godkjent
 
 ## Musikk
 "Local Forecast - Elevator" av Kevin MacLeod, lisensiert under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Se `music/Read.txt`.
