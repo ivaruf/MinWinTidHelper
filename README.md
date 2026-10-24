@@ -27,11 +27,14 @@ Nytt i 2.0: en ugle 🦉 som bor i en fuglekasse nederst på siden (eller venter
 Som i Chrome: gå til `edge://extensions`, skru på "Utviklermodus" og klikk "Last inn upakket".
 
 ### Firefox
-1. Gå til `about:debugging#/runtime/this-firefox`
-2. Klikk "Last inn midlertidig tillegg…" og velg `manifest.json` i mappen
-3. Ferdig!
+Firefox trenger noen ekstra felt i manifestet som Chrome advarer om, så Firefox-versjonen bygges med et lite skript:
 
-Midlertidige tillegg forsvinner når Firefox startes på nytt. For en varig installasjon må tillegget signeres av Mozilla (gratis): last opp en zip av mappen som "On your own" på addons.mozilla.org, og del `.xpi`-filen du får tilbake. Krever Firefox 128 eller nyere.
+1. Kjør `python3 tools/build-firefox.py` i mappen. Det lager `dist/firefox/` og en zip i `dist/`
+2. Gå til `about:debugging#/runtime/this-firefox`
+3. Klikk "Last inn midlertidig tillegg…" og velg `dist/firefox/manifest.json`
+4. Ferdig!
+
+Midlertidige tillegg forsvinner når Firefox startes på nytt. For en varig installasjon må tillegget signeres av Mozilla (gratis): last opp zip-filen fra `dist/` som "On your own" på addons.mozilla.org, og del `.xpi`-filen du får tilbake. Krever Firefox 128 eller nyere.
 
 ### Safari
 Støttes ikke ennå. Safari krever at utvidelsen pakkes inn i en Mac-app med Xcode, og signeres med en Apple Developer-konto for å kunne deles.

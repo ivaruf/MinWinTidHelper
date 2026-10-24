@@ -8,17 +8,7 @@
     "open_in_tab": true
   },
   "background": {
-    "service_worker": "background.js",
-    "scripts": ["background.js"]
-  },
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "minwintidhelper@ivaruf.github.io",
-      "strict_min_version": "128.0",
-      "data_collection_permissions": {
-        "required": ["none"]
-      }
-    }
+    "service_worker": "background.js"
   },
   "action": {
     "default_title": "MinWinTidHelper-innstillinger",
