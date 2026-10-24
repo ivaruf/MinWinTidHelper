@@ -59,7 +59,11 @@ window.Owl = (() => {
 .owl:not(.flying):hover .bird { animation: tilt .7s ease-in-out; }
 .speech { position: absolute; bottom: calc(100% + 6px); right: 40%; max-width: 260px; width: max-content;
   background: #fff; border: 2px solid #2b2118; border-radius: 14px; padding: 7px 11px; font-weight: 650;
-  box-shadow: 3px 3px 0 #2b2118; transform-origin: 90% 100%; }
+  box-shadow: 3px 3px 0 #2b2118; transform-origin: 90% 100%; cursor: default; }
+.speech:has(.links) { max-width: 380px; } /* wider and lower, so it doesn't hide the version line */
+.speech .links { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 6px; }
+.speech a { color: #8b5e3c; font-weight: 750; text-decoration: underline; text-underline-offset: 2px; }
+.speech a:hover { color: #f28c28; }
 .speech::after { content: ''; position: absolute; right: 14px; top: 100%; border: 7px solid transparent; border-top-color: #2b2118; }
 .on-left .speech { right: auto; left: 40%; transform-origin: 10% 100%; }
 .on-left .speech::after { right: auto; left: 14px; }
@@ -155,6 +159,7 @@ window.Owl = (() => {
   owl.title = 'Huu-huu! Klikk for et tips';
   const speech = make('div', 'speech');
   speech.hidden = true;
+  speech.addEventListener('click', (e) => e.stopPropagation()); // reading the bubble isn't poking the owl
   owl.append(speech);
   stage.append(shield, panel, owl, toasts);
   shadow.append(stage);
@@ -165,9 +170,23 @@ window.Owl = (() => {
 
   const say = (() => {
     let timer;
-    return (text, duration = 2600) => {
+    // links: [{ text, href }], shown under the text, e.g. for a new version.
+    return (text, duration = 2600, links = []) => {
       clearTimeout(timer);
       speech.textContent = text;
+      if (links.length) {
+        const row = make('div', 'links');
+        for (const { text: label, href } of links) {
+          const a = make('a');
+          a.textContent = label;
+          a.href = href;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          a.addEventListener('click', (e) => e.stopPropagation()); // not a poke at the owl
+          row.append(a);
+        }
+        speech.append(row);
+      }
       speech.hidden = false;
       anim(speech, [{ scale: 0.3, opacity: 0 }, { scale: 1.06, opacity: 1, offset: 0.7 }, { scale: 1, opacity: 1 }], 240);
       timer = setTimeout(() => (speech.hidden = true), Math.max(duration, 500));

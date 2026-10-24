@@ -19,6 +19,10 @@ Nytt i 2.0: en ugle 🦉 som bor i en fuglekasse nederst på siden (eller venter
 
 **Oppdatere:** hent siste versjon, klikk på oppdater-ikonet på MinWinTidHelper i `chrome://extensions`, og last minWINTID-siden på nytt.
 
+**Ny versjon?** Ugla sjekker GitHub når siden lastes (maks hver 6. time). Er det kommet en ny versjon, vrikker versjonslinjen ved fuglekassen på seg, og ugla sier ifra én gang med lenke til nedlasting og hva som er nytt. Klikk på versjonslinjen for å sjekke med en gang.
+
+*For utviklere:* husk å øke `version` i `manifest.json` (og linje 2 i `content.js`) når du pusher noe nytt, ellers merker ingen at det er en ny versjon.
+
 ### Microsoft Edge
 Som i Chrome: gå til `edge://extensions`, skru på "Utviklermodus" og klikk "Last inn upakket".
 

@@ -1,5 +1,5 @@
 // content.js  - IMPORTANT _ KEEP VERSION ON LINE 2 UP TO DATE
-let version = "2.0.0";
+let version = "2.1.0";
 
 // Adds the MinWinTidHelper buttons to the minWINTID Maintenance page. The owl lives in owl.js.
 const DEFAULTS = {
@@ -423,6 +423,61 @@ const BIRDHOUSE_SVG = `
   </g>
 </svg>`;
 
+// The version line by the birdhouse, like minWINTID's own "WinTid versjon ..." in the footer.
+// It checks GitHub for a newer version on load (cached for a few hours) and on click.
+function makeVersionLine() {
+    const line = document.createElement('span');
+    line.className = 'mwh-version';
+    line.setAttribute('role', 'button');
+    line.tabIndex = 0;
+    line.title = 'Klikk for å se etter ny versjon';
+    line.textContent = `WinTidHelper versjon ${chrome.runtime.getManifest().version}`;
+    const check = () => checkVersion(line, true);
+    line.addEventListener('click', check);
+    line.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            check();
+        }
+    });
+    checkVersion(line, false);
+    return line;
+}
+
+async function checkVersion(line, force) {
+    if (force) Owl.say('Sjekker GitHub etter ny versjon… 🔍', 1500);
+    let result;
+    try {
+        result = await chrome.runtime.sendMessage({ type: 'checkForUpdate', force });
+    } catch {
+        result = null; // e.g. the extension was reloaded and this page still runs the old one
+    }
+    if (!result) {
+        if (force) Owl.say('Fikk ikke sjekket akkurat nå. Last siden på nytt og prøv igjen.', 3500);
+        return;
+    }
+    const { current, latest, updateAvailable, failed } = result;
+    line.classList.toggle('mwh-update', updateAvailable);
+    line.textContent = updateAvailable
+        ? `WinTidHelper versjon ${current} · ${latest} er ute!`
+        : `WinTidHelper versjon ${current}`;
+
+    if (updateAvailable) {
+        // On load, announce each new version once; on click, always.
+        const { announcedVersion } = await chrome.storage.local.get('announcedVersion');
+        if (force || announcedVersion !== latest) {
+            Owl.say(`Huu-huu! Versjon ${latest} er ute 🎉 Last ned, pakk ut over den gamle mappen og trykk ↻ på utvidelsen.`, 12000, [
+                { text: `Last ned ${latest}`, href: result.downloadUrl },
+                { text: 'Hva er nytt?', href: result.changesUrl },
+            ]);
+            Owl.hop();
+            await chrome.storage.local.set({ announcedVersion: latest });
+        }
+    } else if (force) {
+        Owl.say(failed ? 'Fikk ikke tak i GitHub akkurat nå. Prøv igjen litt senere.' : `Du har nyeste versjon (${current}) ✓`, 3500);
+    }
+}
+
 function addBirdhouse() {
     // Right under the month buttons in the calendar column: high up, and the day panel on the right
     // can't push it down. Falls back to the bottom of the page.
@@ -435,10 +490,7 @@ function addBirdhouse() {
     button.innerHTML = `<span class="mwh-birdhouse-art">${BIRDHOUSE_SVG}<span class="mwh-perch"></span></span>`;
     button.addEventListener('click', () => chrome.runtime.sendMessage({ type: 'openOptions' }));
     button.addEventListener('mouseenter', () => Owl.say('Det er der jeg bor! 🏠 Klikk for innstillinger.', 2200));
-    // Like minWINTID's own "WinTid versjon ..." in the footer.
-    const version = document.createElement('span');
-    version.className = 'mwh-version';
-    version.textContent = `WinTidHelper versjon ${chrome.runtime.getManifest().version}`;
+    const version = makeVersionLine();
     const row = document.createElement('div');
     row.className = 'mwh-birdhouse-row';
     row.append(button, version);
