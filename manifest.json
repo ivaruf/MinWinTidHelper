@@ -20,7 +20,7 @@
   "permissions": [
     "storage"
   ],
-  "host_permissions": ["https://*.no/Maintenance"],
+  "host_permissions": ["https://*.wintid.no/Maintenance"],
   "web_accessible_resources": [{
     "resources" : ["music/elevator.mp3"],
     "matches": ["<all_urls>"]
@@ -28,7 +28,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*.no/Maintenance"
+        "https://*.wintid.no/Maintenance"
       ],
       "js": ["owl.js", "content.js"],
       "css": ["styles.css"]
