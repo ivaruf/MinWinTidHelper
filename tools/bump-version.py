@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Bumps the version in manifest.json (and the copy on line 2 of content.js).
 
-Usage: python3 tools/bump-version.py patch|minor|major|behold
+Usage: python3 tools/bump-version.py patch|minor|major
 Prints "version=X.Y.Z", which the release workflow reads as a step output.
-"behold" keeps the current version, e.g. to release it for the first time.
 """
 import re
 import sys
@@ -14,7 +13,7 @@ MANIFEST = ROOT / 'manifest.json'
 CONTENT = ROOT / 'content.js'
 
 part = sys.argv[1] if len(sys.argv) > 1 else ''
-if part not in ('patch', 'minor', 'major', 'behold'):
+if part not in ('patch', 'minor', 'major'):
     sys.exit(__doc__)
 
 manifest = MANIFEST.read_text(encoding='utf-8')
@@ -27,7 +26,7 @@ if part == 'major':
     major, minor, patch = major + 1, 0, 0
 elif part == 'minor':
     minor, patch = minor + 1, 0
-elif part == 'patch':
+else:
     patch += 1
 version = f'{major}.{minor}.{patch}'
 

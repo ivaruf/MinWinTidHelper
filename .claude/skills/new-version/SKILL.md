@@ -48,8 +48,8 @@ whether the owner clicks in GitHub or asks here. Read the workflow file if anyth
 
 3. **Propose the bump and the sentence.**
    - Bump: `patch` for fixes only, `minor` for new features (the usual), `major` for big changes
-     to how it's used. Use `behold` when `manifest.json` already holds a version that has no
-     release yet (e.g. the very first release, or after a manual bump), so it isn't skipped.
+     to how it's used. Always bump from the version in `manifest.json`, even if that version
+     was never released; a skipped number is harmless.
    - Sentence: one short Norwegian sentence, written for the people who use the owl, not for
      developers, e.g. "Ugla sier nå ifra når det er kommet en ny versjon." It's read aloud in a
      speech bubble, so keep it under ~90 characters and leave out commit-speak.
@@ -82,8 +82,8 @@ Read the failed step with `gh run view <id> --log-failed`.
 - **"vX.Y.Z finnes allerede"**: that version is already released; pick another bump.
 - **Push rejected** (`protected branch`, `permission denied`, 403): `master` has branch
   protection that blocks the bot, or Settings → Actions → General → Workflow permissions is
-  "Read". The owner fixes that on GitHub; then run the workflow again with `behold` if the bump
-  commit didn't land, or the same bump if nothing was pushed.
+  "Read". The owner fixes that on GitHub, then runs the workflow again with the same bump. The
+  push is atomic (commit and tag together), so nothing landed and nothing needs undoing.
 - **Failed after the tag was pushed** (build or `gh release create`): the version commit and tag
   exist but there's no release. Don't bump again. Tell the owner, and offer
   `gh release create vX.Y.Z --generate-notes` with the zips from `python3 tools/build.py` as the

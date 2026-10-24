@@ -84,7 +84,7 @@ Hvis du har arbeidsdager kortere enn 07:35 timer, f.eks. hvis du jobber 80%, 06:
 ## Slippe en ny versjon
 1. Push endringene til `master`
 2. Gå til **Actions → Ny versjon → Run workflow** på GitHub
-3. Velg hvor mye versjonen skal økes (`minor`, `patch`, `major`, eller `behold` for å slippe versjonen som står i `manifest.json` nå), og skriv gjerne én setning om hva som er nytt. Den setningen leser ugla opp
+3. Velg hvor mye versjonen skal økes (`patch` for småfikser, `minor` for nye ting, `major` for store endringer), og skriv gjerne én setning om hva som er nytt. Den setningen leser ugla opp
 4. Workflowen oppdaterer versjonen i `manifest.json` og `content.js`, lager taggen `vX.Y.Z`, bygger zip-filer for Chrome/Edge og Firefox, og publiserer en release med dem
 
 Først når releasen er publisert, sier ugla ifra til alle. Vanlige push til `master` merkes ikke.

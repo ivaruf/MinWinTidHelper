@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       bump:
-        description: 'Hvilken del av versjonen skal økes? (behold = slipp versjonen som står i manifest.json nå)'
+        description: 'Hvilken del av versjonen skal økes?'
         type: choice
-        options: [minor, patch, major, behold]
+        options: [minor, patch, major]
         default: minor
       notes:
         description: 'Kort om hva som er nytt. Ugla leser dette opp, så hold det til én setning.'
@@ -48,7 +48,7 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git diff --quiet || git commit -am "Versjon $VERSION"
+          git commit -am "Versjon $VERSION"
           git tag "v$VERSION"
           git push --atomic origin HEAD:refs/heads/master "refs/tags/v$VERSION"
 
