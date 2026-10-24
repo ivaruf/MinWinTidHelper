@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Builds the release zips into dist/:
 
-- minwintidhelper-chrome-X.Y.Z.zip: for Chrome and Edge, files in a MinWinTidHelper/ folder
+- minwintidhelper-chrome-X.Y.Z.zip: for Chrome, Edge and the Chrome Web Store, files at the top level
 - minwintidhelper-firefox-X.Y.Z.zip: for Firefox and addons.mozilla.org, files at the top level
 - dist/firefox/: the Firefox build unpacked, to load in about:debugging
 
@@ -38,9 +38,9 @@ manifest = json.loads((ROOT / 'manifest.json').read_text(encoding='utf-8'))
 version = manifest['version']
 DIST.mkdir(exist_ok=True)
 
-# Chrome and Edge: as is, inside a MinWinTidHelper/ folder.
+# Chrome and Edge: as is, files at the top level (the Chrome Web Store wants manifest.json there).
 staging = DIST / 'chrome-staging'
-copy_extension(staging / 'MinWinTidHelper')
+copy_extension(staging)
 chrome_zip = shutil.make_archive(str(DIST / f'minwintidhelper-chrome-{version}'), 'zip', staging)
 shutil.rmtree(staging)
 
