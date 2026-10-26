@@ -89,7 +89,35 @@ Hvis du har arbeidsdager kortere enn 07:35 timer, f.eks. hvis du jobber 80%, 06:
 2. Gå til **Actions → Ny versjon → Run workflow** på GitHub
 3. Velg hvor mye versjonen skal økes (`patch` for småfikser, `minor` for nye ting, `major` for store endringer), og skriv gjerne én setning om hva som er nytt
 4. Workflowen oppdaterer versjonen i `manifest.json` og `content.js`, lager taggen `vX.Y.Z`, bygger zip-filer for Chrome/Edge og Firefox, og publiserer en release med dem
-5. Last opp Chrome-zipen i Chrome Web Store sitt utviklerdashbord. Brukerne får den automatisk når den er godkjent
+5. Til slutt laster den opp Chrome-zipen til Chrome Web Store og sender den til gjennomgang. Brukerne får den automatisk når Google har godkjent den. Feiler bare dette steget, klikk **Re-run failed jobs**, så prøver den igjen uten å øke versjonen
+
+### Chrome Web Store-oppsett (én gang)
+Workflowen logger inn uten nøkler: GitHub låner en tjenestekonto i Google Cloud via Workload Identity Federation, og tjenestekontoen har tilgang til utviklerkontoen i Chrome Web Store.
+
+```sh
+PROJECT=<prosjekt-id i Google Cloud>
+gcloud config set project $PROJECT
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT --format='value(projectNumber)')
+gcloud services enable chromewebstore.googleapis.com iamcredentials.googleapis.com sts.googleapis.com
+gcloud iam service-accounts create cws-publisher --display-name="Chrome Web Store publisher"
+gcloud iam workload-identity-pools create github --location=global --display-name=GitHub
+gcloud iam workload-identity-pools providers create-oidc minwintidhelper \
+  --location=global --workload-identity-pool=github \
+  --issuer-uri=https://token.actions.githubusercontent.com \
+  --attribute-mapping=google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.ref=assertion.ref \
+  --attribute-condition="assertion.repository=='ivaruf/MinWinTidHelper' && assertion.ref=='refs/heads/master'"
+gcloud iam service-accounts add-iam-policy-binding cws-publisher@$PROJECT.iam.gserviceaccount.com \
+  --role=roles/iam.workloadIdentityUser \
+  --member="principalSet://iam.googleapis.com/projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/github/attribute.repository/ivaruf/MinWinTidHelper"
+```
+
+Legg så til `cws-publisher@<prosjekt-id>.iam.gserviceaccount.com` under **Account** i Chrome Web Store sitt utviklerdashbord, og sett tre variabler (ingen av dem er hemmelige):
+
+```sh
+gh variable set CWS_PUBLISHER_ID --body <publisher-id fra Account i dashbordet>
+gh variable set CWS_SERVICE_ACCOUNT --body cws-publisher@$PROJECT.iam.gserviceaccount.com
+gh variable set GCP_WIF_PROVIDER --body projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/github/providers/minwintidhelper
+```
 
 ## Musikk
 "Local Forecast - Elevator" av Kevin MacLeod, lisensiert under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Se `music/Read.txt`.

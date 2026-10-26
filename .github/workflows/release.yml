@@ -1,6 +1,6 @@
-# Ny versjon: bumps the version, tags it, builds the zips and publishes a GitHub release.
-# Run it from the Actions tab ("Ny versjon" -> "Run workflow"). The owl in minWINTID reads the
-# latest release, so publishing one is what tells everyone there's something new.
+# Ny versjon: bumps the version, tags it, builds the zips, publishes a GitHub release and submits
+# the Chrome zip to the Chrome Web Store, which updates everyone once Google has reviewed it.
+# Run it from the Actions tab ("Ny versjon" -> "Run workflow").
 name: Ny versjon
 
 on:
@@ -12,7 +12,7 @@ on:
         options: [minor, patch, major]
         default: minor
       notes:
-        description: 'Kort om hva som er nytt. Ugla leser dette opp, så hold det til én setning.'
+        description: 'Kort om hva som er nytt, gjerne én setning. Havner i release-notatene.'
         type: string
         required: false
 
@@ -27,6 +27,8 @@ jobs:
   release:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -67,3 +69,57 @@ jobs:
             --title "Versjon $VERSION" \
             --notes "$NOTES" \
             --generate-notes
+
+  # A job of its own, so a failed store upload can be rerun ("Re-run failed jobs") without bumping
+  # the version again. It logs in keylessly: GitHub's OIDC token is swapped for a short-lived token
+  # for a Google service account that has access to the publisher (see README, "Chrome Web Store").
+  chrome-web-store:
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      EXTENSION_ID: hafimbkcnpimigemcnfhejgncpohmhfd
+      PUBLISHER_ID: ${{ vars.CWS_PUBLISHER_ID }}
+      VERSION: ${{ needs.release.outputs.version }}
+    steps:
+      - name: Log in to Google
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.CWS_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/chromewebstore
+          create_credentials_file: false
+
+      - name: Download the Chrome zip from the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download "v$VERSION" -R "$GITHUB_REPOSITORY" -p "minwintidhelper-chrome-$VERSION.zip"
+
+      - name: Upload and submit for review
+        env:
+          TOKEN: ${{ steps.auth.outputs.access_token }}
+        run: |
+          item="publishers/$PUBLISHER_ID/items/$EXTENSION_ID"
+          api() { curl -sS --fail-with-body -H "Authorization: Bearer $TOKEN" "$@"; }
+
+          upload=$(api -X POST -T "minwintidhelper-chrome-$VERSION.zip" \
+            "https://chromewebstore.googleapis.com/upload/v2/$item:upload") || { echo "$upload"; exit 1; }
+          echo "$upload"
+          state=$(jq -r .uploadState <<< "$upload")
+          # Big uploads are processed in the background; wait for them (up to 5 minutes).
+          for _ in $(seq 30); do
+            [ "$state" = IN_PROGRESS ] || break
+            sleep 10
+            state=$(api "https://chromewebstore.googleapis.com/v2/$item:fetchStatus" | jq -r .lastAsyncUploadState)
+          done
+          if [ "$state" != SUCCEEDED ]; then
+            echo "::error::Opplastingen til Chrome Web Store feilet ($state)."
+            exit 1
+          fi
+
+          api -X POST "https://chromewebstore.googleapis.com/v2/$item:publish"
+          echo "::notice::$VERSION er sendt til gjennomgang i Chrome Web Store, og publiseres når den er godkjent."
