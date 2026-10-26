@@ -34,7 +34,7 @@ whether the owner clicks in GitHub or asks here. Read the workflow file if anyth
      commit them if they belong in it.
    - Compare `git rev-parse HEAD` with
      `gh api repos/ivaruf/MinWinTidHelper/commits/master --jq .sha`.
-     Local ahead → the owner must push first (`! git push`). Local behind → `! git pull` first, so
+     Local ahead → the owner must push first (`! git push`). Local behind → the owner catches up first (they prefer `git fetch` and merging themselves), so
      your read of the changes below is right. Don't continue until they match.
    - `gh workflow view release.yml` must find the workflow; if it doesn't, it hasn't been pushed.
 
@@ -73,7 +73,7 @@ whether the owner clicks in GitHub or asks here. Read the workflow file if anyth
 5. **Report.** `gh release view v<X.Y.Z> --json url,assets --jq '{url, assets: [.assets[].name]}'`:
    give the release URL and the two zips, and say the version is submitted to the Chrome Web
    Store and reaches users when Google has approved it. Then tell the owner the workflow pushed a
-   version commit and a tag to `master`, so the local repo is now behind: `! git pull --tags`.
+   version commit and a tag to `master`, so the local repo is now behind until the owner fetches (`! git fetch`).
 
 ## When the workflow fails
 
