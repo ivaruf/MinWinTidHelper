@@ -482,6 +482,23 @@ function addButtons() {
     }
 }
 
+// An approved day is locked in minWINTID, so the day buttons would only fail there: hide them, and
+// show them again when the day is unapproved, without a reload.
+// minWINTID's own "Fjerne godkjenning" is only enabled on a day you've approved, and it reflects the
+// loaded day right away, while the calendar's title can lag behind. So it decides when it's there;
+// the selected calendar day's title is the fallback, and also covers days a manager has approved or
+// that have gone to payroll, which stay locked either way.
+function updateDayButtons() {
+    const selected = $('.day-container.day-selected');
+    const title = selected?.getAttribute('title') ?? '';
+    const unapprove = $('[data-cy="btn-unapprove-day"]');
+    const approvedByYou = unapprove ? !unapprove.disabled : /godkjent av ansatt/i.test(title);
+    const locked = approvedByYou || /godkjent av leder|overført til lønn/i.test(title);
+    for (const el of $$('#editing-day .mwh-break, #dagKnapp, #treneKnapp, #fleksKnapp, #sykKnapp')) {
+        el.classList.toggle('mwh-hidden', locked);
+    }
+}
+
 // The birdhouse goes in last: our buttons in the day panel can wrap to a new line and push the page
 // down, which would make the owl sink with it. If the day panel never shows up, add it after 5 s.
 function addEverything() {
@@ -491,3 +508,4 @@ function addEverything() {
 
 addEverything();
 setInterval(addEverything, 1000);
+setInterval(updateDayButtons, 250); // quick enough to follow clicks in the calendar
